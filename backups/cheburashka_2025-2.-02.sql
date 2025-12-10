@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict bMKWRyMepLaAM0e4WEwiDrWf9n2wp5nrKYP2y69sal50F8M5NrbjM9MvD562LeG
+\restrict 64jbpSu045ejqze6R1lb6ZgnWmWRH6qqePKVcxtfcHsLIT6mbl0F9GQFus8Ogwy
 
 -- Dumped from database version 17.7
 -- Dumped by pg_dump version 17.7
@@ -34,6 +34,44 @@ ALTER SCHEMA public OWNER TO pg_database_owner;
 
 COMMENT ON SCHEMA public IS 'standard public schema';
 
+
+--
+-- Name: generate_issue_key(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.generate_issue_key() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    proj_key TEXT;
+    next_id INTEGER;
+BEGIN
+    -- Если issue_key уже задан — ничего не делаем
+    IF NEW.issue_key IS NOT NULL AND NEW.issue_key != '' THEN
+        RETURN NEW;
+    END IF;
+
+    -- Получаем project_key
+    SELECT project_key INTO proj_key
+    FROM project
+    WHERE id = NEW.project_id;
+
+    IF proj_key IS NULL THEN
+        RAISE EXCEPTION 'Project with id % not found', NEW.project_id;
+    END IF;
+
+    -- Получаем следующий id
+    next_id := nextval(pg_get_serial_sequence('issue', 'id'));
+
+    -- Формируем ключ
+    NEW.issue_key := proj_key || '-' || next_id;
+
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.generate_issue_key() OWNER TO postgres;
 
 SET default_tablespace = '';
 
@@ -104,7 +142,7 @@ CREATE TABLE public.issue (
     project_id integer NOT NULL,
     issue_type_id integer NOT NULL,
     status_id integer NOT NULL,
-    issue_key character varying(20) NOT NULL,
+    issue_key character varying(20),
     summary character varying(255) NOT NULL,
     description text,
     assignee_id integer,
@@ -155,6 +193,45 @@ ALTER SEQUENCE public.issue_comment_id_seq OWNER TO postgres;
 --
 
 ALTER SEQUENCE public.issue_comment_id_seq OWNED BY public.issue_comment.id;
+
+
+--
+-- Name: issue_history; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.issue_history (
+    id integer NOT NULL,
+    issue_id integer NOT NULL,
+    user_id integer NOT NULL,
+    field character varying(64) NOT NULL,
+    old_value text,
+    new_value text,
+    created_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.issue_history OWNER TO postgres;
+
+--
+-- Name: issue_history_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.issue_history_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.issue_history_id_seq OWNER TO postgres;
+
+--
+-- Name: issue_history_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.issue_history_id_seq OWNED BY public.issue_history.id;
 
 
 --
@@ -477,6 +554,13 @@ ALTER TABLE ONLY public.issue_comment ALTER COLUMN id SET DEFAULT nextval('publi
 
 
 --
+-- Name: issue_history id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.issue_history ALTER COLUMN id SET DEFAULT nextval('public.issue_history_id_seq'::regclass);
+
+
+--
 -- Name: issue_priority id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -563,6 +647,7 @@ COPY public.auth_rule (name, data, created_at, updated_at) FROM stdin;
 
 COPY public.issue (id, project_id, issue_type_id, status_id, issue_key, summary, description, assignee_id, reporter_id, parent_issue_id, created_at, updated_at, priority_id, resolution_id) FROM stdin;
 1	1	2	3	CHEB-1	Проверка		\N	2	\N	2025-12-08 08:51:18	2025-12-08 14:51:29.365284	3	\N
+2	1	3	1	CHEB-2	йцу	йцу	2	2	\N	2025-12-10 09:12:30	2025-12-10 09:12:30	1	\N
 \.
 
 
@@ -572,6 +657,14 @@ COPY public.issue (id, project_id, issue_type_id, status_id, issue_key, summary,
 
 COPY public.issue_comment (id, issue_id, user_id, body, created_at, updated_at) FROM stdin;
 1	1	2	Проверка	2025-12-08 10:19:34	2025-12-08 16:19:34.212299
+\.
+
+
+--
+-- Data for Name: issue_history; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.issue_history (id, issue_id, user_id, field, old_value, new_value, created_at) FROM stdin;
 \.
 
 
@@ -630,6 +723,7 @@ COPY public.issue_type (id, tenant_id, name, description, icon) FROM stdin;
 
 COPY public.issue_watcher (issue_id, user_id) FROM stdin;
 1	2
+2	2
 \.
 
 
@@ -679,10 +773,17 @@ SELECT pg_catalog.setval('public.issue_comment_id_seq', 1, true);
 
 
 --
+-- Name: issue_history_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.issue_history_id_seq', 1, false);
+
+
+--
 -- Name: issue_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.issue_id_seq', 1, true);
+SELECT pg_catalog.setval('public.issue_id_seq', 3, true);
 
 
 --
@@ -772,6 +873,14 @@ ALTER TABLE ONLY public.auth_rule
 
 ALTER TABLE ONLY public.issue_comment
     ADD CONSTRAINT issue_comment_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: issue_history issue_history_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.issue_history
+    ADD CONSTRAINT issue_history_pkey PRIMARY KEY (id);
 
 
 --
@@ -939,6 +1048,13 @@ CREATE INDEX idx_project_tenant_id ON public.project USING btree (tenant_id);
 
 
 --
+-- Name: issue trg_issue_generate_key; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER trg_issue_generate_key BEFORE INSERT ON public.issue FOR EACH ROW EXECUTE FUNCTION public.generate_issue_key();
+
+
+--
 -- Name: auth_assignment auth_assignment_item_name_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -984,6 +1100,22 @@ ALTER TABLE ONLY public.issue_comment
 
 ALTER TABLE ONLY public.issue_comment
     ADD CONSTRAINT issue_comment_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id);
+
+
+--
+-- Name: issue_history issue_history_issue_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.issue_history
+    ADD CONSTRAINT issue_history_issue_id_fkey FOREIGN KEY (issue_id) REFERENCES public.issue(id) ON DELETE CASCADE;
+
+
+--
+-- Name: issue_history issue_history_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.issue_history
+    ADD CONSTRAINT issue_history_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE RESTRICT;
 
 
 --
@@ -1086,5 +1218,5 @@ ALTER TABLE ONLY public.project
 -- PostgreSQL database dump complete
 --
 
-\unrestrict bMKWRyMepLaAM0e4WEwiDrWf9n2wp5nrKYP2y69sal50F8M5NrbjM9MvD562LeG
+\unrestrict 64jbpSu045ejqze6R1lb6ZgnWmWRH6qqePKVcxtfcHsLIT6mbl0F9GQFus8Ogwy
 

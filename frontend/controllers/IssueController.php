@@ -17,6 +17,7 @@ use common\models\Issue;
 use common\models\IssueComment;
 use common\models\IssuePriority;
 use common\models\IssueResolution;
+use common\models\IssueWatcher;
 
 class IssueController extends Controller
 {
@@ -132,5 +133,37 @@ class IssueController extends Controller
 			Yii::$app->session->setFlash('success', 'Комментарий добавлен');
 		}
 		return $this->redirect(['view', 'id' => $issue_id]);
+	}
+	
+	public function actionWatch($id)
+	{
+		$issue = $this->findModel($id);
+		$userId = Yii::$app->user->id;
+
+		// Проверяем, наблюдаем ли уже
+		$exists = IssueWatcher::find()
+			->where(['issue_id' => $issue->id, 'user_id' => $userId])
+			->exists();
+
+		if ($exists) {
+			// Удаляем из наблюдателей (отписка)
+			IssueWatcher::deleteAll([
+				'issue_id' => $issue->id,
+				'user_id' => $userId
+			]);
+			Yii::$app->session->setFlash('success', 'Вы больше не наблюдаете за этой задачей.');
+		} else {
+			// Добавляем в наблюдатели
+			$watcher = new IssueWatcher();
+			$watcher->issue_id = $issue->id;
+			$watcher->user_id = $userId;
+			if (!$watcher->save()) {
+				Yii::$app->session->setFlash('error', 'Не удалось добавить в наблюдатели.');
+			} else {
+				Yii::$app->session->setFlash('success', 'Теперь вы наблюдаете за этой задачей.');
+			}
+		}
+
+		return $this->redirect(['view', 'id' => $id]);
 	}
 }

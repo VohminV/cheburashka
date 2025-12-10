@@ -7,7 +7,7 @@ use yii\web\Controller;
 use yii\filters\AccessControl;
 use common\models\Issue;
 use common\models\IssueStatus;
-
+use common\models\IssueHistory;
 /**
  * Site controller
  */
@@ -53,47 +53,53 @@ class SiteController extends Controller
     /**
      * Jira-подобный Dashboard
      */
-    public function actionIndex()
-    {
-        $userId = Yii::$app->user->id;
+	public function actionIndex()
+	{
+		$userId = Yii::$app->user->id;
 
-        // Получаем статусы (предположим: To Do = 1, In Progress = 2, Done = 3)
-        $statusInProgress = IssueStatus::findOne(['name' => 'In Progress']);
-        $statusToDo = IssueStatus::findOne(['name' => 'To Do']);
+		// 1. Назначенные мне
+		$assigned = Issue::find()
+			->where(['assignee_id' => $userId])
+			->with('project')
+			->all();
 
-        // Назначенные мне (все, кроме Done)
-        $assignedToMe = Issue::find()
-            ->where(['assignee_id' => $userId])
-            ->andWhere(['!=', 'status_id', 3]) // исключаем Done
-            ->limit(10)
-            ->all();
+		// 2. В работе (статус "In Progress" = id=2)
+		$inProgress = Issue::find()
+			->where(['assignee_id' => $userId, 'status_id' => 2])
+			->with('project')
+			->all();
 
-        // В работе (статус = In Progress)
-        $inProgress = Issue::find()
-            ->where(['assignee_id' => $userId])
-            ->andWhere(['status_id' => $statusInProgress ? $statusInProgress->id : 2])
-            ->limit(10)
-            ->all();
+		// 3. Наблюдаю
+		$watched = Issue::find()
+			->innerJoin('public.issue_watcher', 'issue.id = issue_watcher.issue_id')
+			->where(['issue_watcher.user_id' => $userId])
+			->with('project')
+			->all();
 
-        // Наблюдаемые задачи — пока заглушка (можно реализовать позже через таблицу watchers)
-        $watched = [];
-		$statusData = Yii::$app->db->createCommand("
-			SELECT 
-				COALESCE(s.name, 'Без статуса') AS status,
-				COUNT(i.id) AS count
-			FROM issue i
-			LEFT JOIN issue_status s ON i.status_id = s.id
-			GROUP BY s.name, s.id
-			ORDER BY s.id
-		")->queryAll();
-				// Передаём данные в представление
-        return $this->render('index', [
-            'assignedToMe' => $assignedToMe,
-            'inProgress' => $inProgress,
-            'watched' => $watched,
+		// 4. Лента активности (последние 10 записей)
+		$activities = IssueHistory::find()
+			->with('issue', 'user')
+			->orderBy('created_at DESC')
+			->limit(10)
+			->all();
+
+		// 5. Диаграмма: статистика по статусам
+		$statusData = (new \yii\db\Query())
+			->select(['s.name as status', 'COUNT(i.id) as count'])
+			->from('public.issue i')
+			->innerJoin('public.issue_status s', 'i.status_id = s.id')
+			->groupBy('s.id, s.name')
+			->orderBy('s.id')
+			->all();
+
+		return $this->render('index', [
+			'assigned' => $assigned,
+			'inProgress' => $inProgress,
+			'watched' => $watched,
+			'activities' => $activities,
 			'statusData' => $statusData,
-        ]);
-    }
+		]);
+	}
 
     /**
      * Logs out the current user.

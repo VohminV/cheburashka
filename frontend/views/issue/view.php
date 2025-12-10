@@ -3,8 +3,8 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\Issue */
-/* @var $commentModel app\models\IssueComment */
+/* @var $model common\models\Issue */
+/* @var $commentModel common\models\IssueComment */
 ?>
 
 <?= $this->render('_project_sidebar', ['project' => $model->project]) ?>
@@ -18,8 +18,8 @@ use yii\helpers\Url;
                 <!-- Аватар проекта -->
                 <div class="aui-page-header-image">
                     <a href="<?= Url::to(['/project/view', 'id' => $model->project->id]) ?>" title="<?= Html::encode($model->project->name) ?>">
-                        <span class="aui-avatar aui-avatar-project">
-                            <?= mb_substr(Html::encode($model->project->name), 0, 1, 'UTF-8') ?>
+                        <span class="aui-avatar aui-avatar-project" style="display: flex; align-items: center; justify-content: center; background-color: #0052cc; color: white; font-weight: bold;">
+                            <?= strtoupper(mb_substr(Html::encode($model->project->project_key ?? $model->project->name), 0, 1, 'UTF-8')) ?>
                         </span>
                     </a>
                 </div>
@@ -43,20 +43,21 @@ use yii\helpers\Url;
         <!-- ПАНЕЛЬ ДЕЙСТВИЙ -->
         <div class="command-bar">
             <div class="aui-toolbar2">
-                <div class="aui-toolbar2-primary">
-                    <?= Html::a('<span class="aui-icon aui-icon-small">✎</span> Редактировать', ['update', 'id' => $model->id], [
-                        'class' => 'aui-button',
-                        'encode' => false
-                    ]) ?>
-                    <?= Html::button('<span class="aui-icon aui-icon-small">💬</span> Комментарий', [
-                        'class' => 'aui-button',
-                        'onclick' => 'document.getElementById("comment-form").scrollIntoView({behavior: "smooth"});',
-                        'encode' => false
-                    ]) ?>
-                    <?= Html::a('Действия', '#', ['class' => 'aui-button']) ?>
-                </div>
-                <div class="aui-toolbar2-secondary">
-                    <?= Html::a('📤 Экспорт', '#', ['class' => 'aui-button aui-button-subtle']) ?>
+                <div class="aui-toolbar2-inner">
+                    <div class="aui-toolbar2-primary">
+                        <?= Html::a('<span class="aui-icon aui-icon-small">✎</span> Редактировать', ['update', 'id' => $model->id], [
+                            'class' => 'aui-button toolbar-trigger',
+                            'encode' => false
+                        ]) ?>
+                        <?= Html::button('<span class="aui-icon aui-icon-small">💬</span> Комментарий', [
+                            'class' => 'aui-button toolbar-trigger',
+                            'onclick' => 'document.getElementById("comment-form").scrollIntoView({behavior: "smooth"});',
+                            'encode' => false
+                        ]) ?>
+                    </div>
+                    <div class="aui-toolbar2-secondary">
+                        <?= Html::a('📤 Экспорт', '#', ['class' => 'aui-button aui-button-subtle']) ?>
+                    </div>
                 </div>
             </div>
         </div>
@@ -64,11 +65,11 @@ use yii\helpers\Url;
         <!-- ОСНОВНОЙ КОНТЕНТ -->
         <div class="aui-group issue-body">
 
-            <!-- ЛЕВАЯ КОЛОНКА: ОСНОВНОЙ КОНТЕНТ -->
+            <!-- ЛЕВАЯ КОЛОНКА -->
             <div class="aui-item issue-main-column">
 
                 <!-- ДЕТАЛИ -->
-                <div class="module dashboard-gadget">
+                <div class="module toggle-wrap">
                     <div class="mod-header">
                         <h4>Детали задачи</h4>
                     </div>
@@ -79,8 +80,8 @@ use yii\helpers\Url;
                                     <span class="name">Тип:</span>
                                     <span class="value">
                                         <?php if ($model->issueType): ?>
-                                            <span style="display: inline-flex; align-items: center; gap: 6px;">
-                                                <span style="font-size: 16px; color: #6b778c;"><?= mb_substr($model->issueType->name, 0, 1) ?></span>
+                                            <span class="aui-icon-container" style="display: inline-flex; align-items: center; gap: 6px;">
+                                                <span style="font-size: 14px; color: #6b778c;"><?= mb_substr($model->issueType->name, 0, 1) ?></span>
                                                 <?= Html::encode($model->issueType->name) ?>
                                             </span>
                                         <?php else: ?>—<?php endif; ?>
@@ -107,7 +108,9 @@ use yii\helpers\Url;
                                                     'Закрыто' => '#6b778c',
                                                     default => '#6b778c'
                                                 }; ?>;
-                                            "><?= Html::encode($model->status->name) ?></span>
+                                            ">
+                                                <?= Html::encode($model->status->name) ?>
+                                            </span>
                                         <?php else: ?>—<?php endif; ?>
                                     </span>
                                 </div>
@@ -143,17 +146,17 @@ use yii\helpers\Url;
                 </div>
 
                 <!-- ОПИСАНИЕ -->
-                <div class="module dashboard-gadget">
+                <div class="module toggle-wrap">
                     <div class="mod-header">
                         <h4>Описание</h4>
                     </div>
-                    <div class="user-content-block">
+                    <div class="user-content-block mod-content">
                         <?= $model->description ? nl2br(Html::encode($model->description)) : '<em>Нет описания</em>' ?>
                     </div>
                 </div>
 
                 <!-- ВЛОЖЕНИЯ -->
-                <div class="module dashboard-gadget">
+                <div class="module toggle-wrap">
                     <div class="mod-header">
                         <h4>Вложенные файлы</h4>
                     </div>
@@ -178,120 +181,105 @@ use yii\helpers\Url;
 
             </div>
 
-            <!-- ПРАВАЯ КОЛОНКА: БОКОВАЯ ПАНЕЛЬ (ТОЧНЫЙ АНАЛОГ JIRA) -->
-            <div id="viewissuesidebar" class="aui-item issue-side-column">
+            <!-- ПРАВАЯ КОЛОНКА: БОКОВАЯ ПАНЕЛЬ -->
+            <div class="aui-item issue-side-column">
 
-                <!-- === БЛОК "ЛЮДИ" === -->
-                <div id="peoplemodule" class="module toggle-wrap">
-                    <div id="peoplemodule_heading" class="mod-header">
-                        <ul class="ops"></ul>
+                <!-- Люди -->
+                <div class="module toggle-wrap">
+                    <div class="mod-header">
                         <h4 class="toggle-title">Люди</h4>
                     </div>
                     <div class="mod-content">
-                        <div class="item-details people-details">
-                            <dl>
-                                <dt>Исполнитель:</dt>
-                                <dd>
-                                    <?php if ($model->assignee): ?>
-                                        <span class="view-issue-field editable-field inactive" title="Нажмите, чтобы изменить">
-                                            <span class="aui-avatar aui-avatar-small">
-                                                <span class="aui-avatar-inner">
-                                                    <span style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; background: #0052cc; color: white; font-size: 12px; border-radius: 50%;">
-                                                        <?= mb_substr(Html::encode($model->assignee->username), 0, 1, 'UTF-8') ?>
-                                                    </span>
+                        <dl>
+                            <dt>Исполнитель:</dt>
+                            <dd>
+                                <?php if ($model->assignee): ?>
+                                    <span class="view-issue-field editable-field inactive">
+                                        <span class="aui-avatar aui-avatar-small">
+                                            <span class="aui-avatar-inner">
+                                                <span class="aui-avatar-project" style="background: #0052cc; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px;">
+                                                    <?= mb_substr(Html::encode($model->assignee->username), 0, 1, 'UTF-8') ?>
                                                 </span>
                                             </span>
-                                            <?= Html::encode($model->assignee->username) ?>
-                                            <span class="overlay-icon aui-icon aui-icon-small aui-iconfont-edit"></span>
                                         </span>
-                                        <?php if (!Yii::$app->user->isGuest && Yii::$app->user->id != $model->assignee_id): ?>
-                                            <span class="assign-to-me-link">
-                                                <?= Html::a('Назначить меня', ['assign-to-me', 'id' => $model->id], [
-                                                    'class' => 'issueaction-assign-to-me',
-                                                    'title' => 'Назначить меня исполнителем этой задачи'
-                                                ]) ?>
-                                            </span>
-                                        <?php endif; ?>
-                                    <?php else: ?>
-                                        <span class="unassigned">—</span>
-                                        <?php if (!Yii::$app->user->isGuest): ?>
-                                            <span class="assign-to-me-link">
-                                                <?= Html::a('Назначить меня', ['assign-to-me', 'id' => $model->id], [
-                                                    'class' => 'issueaction-assign-to-me',
-                                                    'title' => 'Назначить меня исполнителем этой задачи'
-                                                ]) ?>
-                                            </span>
-                                        <?php endif; ?>
-                                    <?php endif; ?>
-                                </dd>
-                            </dl>
-                            <dl>
-                                <dt>Автор:</dt>
-                                <dd>
-                                    <?php if ($model->reporter): ?>
-                                        <span class="view-issue-field">
-                                            <span class="aui-avatar aui-avatar-small">
-                                                <span class="aui-avatar-inner">
-                                                    <span style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; background: #344563; color: white; font-size: 12px; border-radius: 50%;">
-                                                        <?= mb_substr(Html::encode($model->reporter->username), 0, 1, 'UTF-8') ?>
-                                                    </span>
-                                                </span>
-                                            </span>
-                                            <?= Html::encode($model->reporter->username) ?>
+                                        <?= Html::encode($model->assignee->username) ?>
+                                        <span class="overlay-icon aui-icon aui-icon-small aui-iconfont-edit"></span>
+                                    </span>
+                                    <?php if (!Yii::$app->user->isGuest && Yii::$app->user->id != $model->assignee_id): ?>
+                                        <span class="assign-to-me-link">
+                                            <?= Html::a('Назначить меня', ['assign-to-me', 'id' => $model->id]) ?>
                                         </span>
-                                    <?php else: ?>
-                                        —
                                     <?php endif; ?>
-                                </dd>
-                            </dl>
-                        </div>
-                        <div class="item-details">
-                            <dl>
-                                <dt>Наблюдатели:</dt>
-                                <dd>
-                                    <a href="#" id="view-watcher-list" aria-label="Посмотреть наблюдателей">
-                                        <span class="aui-badge"><?= count($model->getWatchers()->all()) ?></span>
-                                    </a>
+                                <?php else: ?>
+                                    <span class="unassigned">—</span>
                                     <?php if (!Yii::$app->user->isGuest): ?>
-                                        <a id="watching-toggle" class="watch-state-off" href="<?= Url::to(['watch', 'id' => $model->id]) ?>">
-                                            Начать наблюдение за этой задачей
-                                        </a>
+                                        <span class="assign-to-me-link">
+                                            <?= Html::a('Назначить меня', ['assign-to-me', 'id' => $model->id]) ?>
+                                        </span>
                                     <?php endif; ?>
-                                </dd>
-                            </dl>
-                        </div>
+                                <?php endif; ?>
+                            </dd>
+
+                            <dt>Автор:</dt>
+                            <dd>
+                                <?php if ($model->reporter): ?>
+                                    <span class="view-issue-field">
+                                        <span class="aui-avatar aui-avatar-small">
+                                            <span class="aui-avatar-inner">
+                                                <span class="aui-avatar-project" style="background: #344563; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px;">
+                                                    <?= mb_substr(Html::encode($model->reporter->username), 0, 1, 'UTF-8') ?>
+                                                </span>
+                                            </span>
+                                        </span>
+                                        <?= Html::encode($model->reporter->username) ?>
+                                    </span>
+                                <?php else: ?>—<?php endif; ?>
+                            </dd>
+
+                            <dt>Наблюдатели:</dt>
+                            <dd>
+                                <a href="#" id="view-watcher-list" aria-label="Посмотреть наблюдателей">
+                                    <span class="aui-badge"><?= count($model->getWatchers()->all()) ?></span>
+                                </a>
+                                <?php if (!Yii::$app->user->isGuest): ?>
+                                    <?php
+                                    $isWatching = \common\models\IssueWatcher::find()
+                                        ->where(['issue_id' => $model->id, 'user_id' => Yii::$app->user->id])
+                                        ->exists();
+                                    ?>
+                                    <a id="watching-toggle"
+                                       class="<?= $isWatching ? 'watch-state-on' : 'watch-state-off' ?>"
+                                       href="<?= Url::to(['issue/watch', 'id' => $model->id]) ?>">
+                                        <?= $isWatching ? 'Прекратить наблюдение' : 'Начать наблюдение за задачей' ?>
+                                    </a>
+                                <?php endif; ?>
+                            </dd>
+                        </dl>
                     </div>
                 </div>
 
-                <!-- === БЛОК "ДАТЫ" === -->
-                <div id="datesmodule" class="module toggle-wrap">
-                    <div id="datesmodule_heading" class="mod-header">
-                        <ul class="ops"></ul>
+                <!-- Даты -->
+                <div class="module toggle-wrap">
+                    <div class="mod-header">
                         <h4 class="toggle-title">Даты</h4>
                     </div>
                     <div class="mod-content">
-                        <div class="item-details">
-                            <dl class="dates">
-                                <dt>Создано:</dt>
-                                <dd class="date user-tz" title="<?= Yii::$app->formatter->asDatetime($model->created_at, 'php:d.m.Y H:i:s') ?>">
-                                    <span data-name="Создано" data-fieldtype="datetime">
-                                        <time datetime="<?= date(DATE_W3C, strtotime($model->created_at)) ?>">
-                                            <?= Yii::$app->formatter->asDatetime($model->created_at, 'php:d M Y H:i') ?>
-                                        </time>
-                                    </span>
-                                </dd>
-                            </dl>
-                            <dl class="dates">
-                                <dt>Обновлено:</dt>
-                                <dd class="date user-tz" title="<?= Yii::$app->formatter->asDatetime($model->updated_at, 'php:d.m.Y H:i:s') ?>">
-                                    <span data-name="Обновлено" data-fieldtype="datetime">
-                                        <time datetime="<?= date(DATE_W3C, strtotime($model->updated_at)) ?>">
-                                            <?= Yii::$app->formatter->asDatetime($model->updated_at, 'php:d M Y H:i') ?>
-                                        </time>
-                                    </span>
-                                </dd>
-                            </dl>
-                        </div>
+                        <dl class="dates">
+                            <dt>Создано:</dt>
+                            <dd title="<?= Yii::$app->formatter->asDatetime($model->created_at, 'php:d.m.Y H:i:s') ?>">
+                                <time datetime="<?= date(DATE_W3C, strtotime($model->created_at)) ?>">
+                                    <?= Yii::$app->formatter->asDatetime($model->created_at, 'php:d M Y H:i') ?>
+                                </time>
+                            </dd>
+                        </dl>
+                        <dl class="dates">
+                            <dt>Обновлено:</dt>
+                            <dd title="<?= Yii::$app->formatter->asDatetime($model->updated_at, 'php:d.m.Y H:i:s') ?>">
+                                <time datetime="<?= date(DATE_W3C, strtotime($model->updated_at)) ?>">
+                                    <?= Yii::$app->formatter->asDatetime($model->updated_at, 'php:d M Y H:i') ?>
+                                </time>
+                            </dd>
+                        </dl>
                     </div>
                 </div>
 

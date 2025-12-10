@@ -1,33 +1,98 @@
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<?php
+use yii\helpers\Html;
+use yii\helpers\Url;
 
-<div id="dashboard" class="dashboard">
-    <div class="aui-page-header">
-        <h1>Рабочий стол</h1>
-    </div>
-    <div class="dashboard-columns">
-        <div style="flex:1">
-            <?= $this->render('_gadget', ['title' => 'Лента активности', 'content' => '<p><em>Пока недоступно</em></p>']) ?>
-            <?= $this->render('_gadget', ['title' => 'Наблюдаемые запросы', 'content' => '<p>Нет задач</p>']) ?>
+$this->title = 'Рабочий стол';
+
+// Функция рендеринга списка задач
+$renderIssueList = function ($issues) {
+    if (empty($issues)) {
+        return '<p>Нет задач</p>';
+    }
+    $lines = [];
+    foreach ($issues as $issue) {
+        $lines[] = Html::a(
+            Html::encode($issue->issue_key . ': ' . $issue->summary),
+            Url::to(['issue/view', 'id' => $issue->id]),
+            ['style' => 'display: block; margin-bottom: 4px; color: var(--jira-text);']
+        );
+    }
+    return implode('', $lines);
+};
+
+// Лента активности
+$activityContent = '<p><em>Пока нет активности</em></p>';
+if (!empty($activities)) {
+    $lines = [];
+    foreach ($activities as $act) {
+        $user = $act->user ? Html::encode($act->user->username) : 'система';
+        if ($act->field === 'created') {
+            $text = 'Создана задача ' . Html::a($act->issue->issue_key, ['issue/view', 'id' => $act->issue->id]);
+        } else {
+            $fieldLabel = $act->issue->getAttributeLabel($act->field);
+            $old = $act->old_value ?? '(пусто)';
+            $new = $act->new_value ?? '(пусто)';
+            $text = "Изменено «{$fieldLabel}» у " . Html::a($act->issue->issue_key, ['issue/view', 'id' => $act->issue->id]) . ": {$old} → {$new}";
+        }
+        $time = Yii::$app->formatter->asRelativeTime($act->created_at);
+        $lines[] = "<p><strong>{$user}</strong> — {$text} <em>({$time})</em></p>";
+    }
+    $activityContent = implode('', $lines);
+}
+?>
+
+<div class="aui-page-panel">
+    <div class="aui-page-panel-inner">
+        <div class="aui-page-header">
+            <div class="aui-page-header-inner">
+                <div class="aui-page-header-main">
+                    <h1>Рабочий стол</h1>
+                </div>
+            </div>
         </div>
-        <div style="flex:1">
-            <?= $this->render('_gadget', ['title' => 'Назначенные мне', 'content' => '<p>Нет задач</p>']) ?>
-            <?= $this->render('_gadget', ['title' => 'Запросов в работе', 'content' => '<p>Нет задач</p>']) ?>
-            <?= $this->render('_gadget', [
-                'title' => 'Круговая диаграмма',
-                // Обёртка с фиксированной высотой — ключ к стабильности
-                'content' => '<div style="height: 220px;"><canvas id="issuesPieChart" style="display:block; width:100%; height:200px;"></canvas></div>'
-            ]) ?>
+
+        <div class="dashboard-columns">
+            <!-- Левая колонка -->
+            <div class="dashboard-column">
+                <?= $this->render('_gadget', [
+                    'title' => 'Лента активности',
+                    'content' => $activityContent
+                ]) ?>
+                <?= $this->render('_gadget', [
+                    'title' => 'Наблюдаемые запросы',
+                    'content' => $renderIssueList($watched)
+                ]) ?>
+            </div>
+
+            <!-- Правая колонка -->
+            <div class="dashboard-column">
+                <?= $this->render('_gadget', [
+                    'title' => 'Назначенные мне',
+                    'content' => $renderIssueList($assigned)
+                ]) ?>
+                <?= $this->render('_gadget', [
+                    'title' => 'Запросов в работе',
+                    'content' => $renderIssueList($inProgress)
+                ]) ?>
+                <?= $this->render('_gadget', [
+                    'title' => 'Круговая диаграмма',
+                    'content' => '<div style="height: 220px;"><canvas id="issuesPieChart"></canvas></div>'
+                ]) ?>
+            </div>
         </div>
     </div>
 </div>
 
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <?php if (!empty($statusData)): ?>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function () {
     const ctx = document.getElementById('issuesPieChart').getContext('2d');
     new Chart(ctx, {
         type: 'pie',
-        data: { // ← ИСПРАВЛЕНО: добавлено "data:"
+        data: {
             labels: <?= json_encode(array_column($statusData, 'status'), JSON_UNESCAPED_UNICODE) ?>,
             datasets: [{
                 data: <?= json_encode(array_column($statusData, 'count')) ?>,
@@ -37,11 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false, // ← КЛЮЧЕВОЙ ПАРАМЕТР — не даёт диаграмме "вылезать"
+            maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    position: 'bottom'
-                }
+                legend: { position: 'bottom' }
             }
         }
     });
@@ -49,8 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 <?php else: ?>
 <script>
-// Заглушка: если данных нет — пишем текст на canvas
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function () {
     const canvas = document.getElementById('issuesPieChart');
     if (canvas) {
         const ctx = canvas.getContext('2d');
