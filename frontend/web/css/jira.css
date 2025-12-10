@@ -1,0 +1,699 @@
+/* === ОСНОВНЫЕ ПЕРЕМЕННЫЕ === */
+:root {
+  --jira-bg: #f4f5f7;
+  --jira-header-bg: #0747a6;
+  --jira-primary: #0052cc;
+  --jira-text: #172b4d;
+  --jira-text-secondary: #5e6c84;
+  --jira-border: #dfe1e6;
+  --jira-hover: #f4f5f7;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body#jira {
+  margin: 0;
+  padding: 0;
+  background: var(--jira-bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--jira-text);
+}
+
+/* === БАЗОВЫЙ СТИЛЬ ДЛЯ ВСЕХ НАВИГАЦИЙ === */
+.aui-nav {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* === ШАПКА === */
+.aui-header {
+  background: var(--jira-header-bg);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  height: 40px;
+}
+
+.aui-header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+.aui-header-primary,
+.aui-header-secondary {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+/* Навигация ТОЛЬКО в шапке */
+.aui-header .aui-nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.aui-header-primary > .aui-nav > li > a,
+.aui-header-secondary > .aui-nav > li > a,
+.aui-header-primary > .aui-nav > li > .aui-nav-link,
+.aui-header-secondary > .aui-nav > li > .aui-nav-link {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 8px;
+  white-space: nowrap;
+}
+
+.aui-header-primary > .aui-nav > li > a:hover,
+.aui-header-secondary > .aui-nav > li > a:hover {
+  text-decoration: underline;
+}
+
+/* Логотип */
+.aui-header-logo-text {
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  text-decoration: none;
+}
+
+/* Поиск */
+.aui-quicksearch .search {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 3px;
+  font-size: 13px;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  outline: none;
+}
+
+/* === КНОПКИ === */
+.aui-button {
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.4;
+  outline: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.aui-button-primary {
+  background: var(--jira-primary);
+  color: white;
+  border-color: var(--jira-primary);
+}
+
+.aui-button-primary:hover {
+  background: #003366;
+  border-color: #003366;
+}
+
+.aui-button-subtle {
+  background: transparent;
+  color: #42526e;
+  border: 1px solid var(--jira-border);
+}
+
+.aui-button-subtle:hover {
+  background: var(--jira-hover);
+}
+
+/* === КОНТЕНТ: ОСНОВНОЙ КОНТЕЙНЕР === */
+#content {
+  display: flex;
+  gap: 24px;
+  padding: 24px 24px 0;
+  max-width: 1400px;
+  margin: 0 auto;
+  flex-wrap: nowrap;
+}
+
+/* === БОКОВАЯ ПАНЕЛЬ ПРОЕКТА === */
+.aui-sidebar-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 240px;
+  flex-shrink: 0;
+  background: white;
+  border: 1px solid var(--jira-border);
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.aui-sidebar-body {
+  padding: 16px;
+}
+
+.aui-sidebar-footer {
+  padding: 8px 16px;
+  border-top: 1px solid var(--jira-border);
+  background: #fafbfc;
+  text-align: center;
+}
+
+/* Навигация в sidebar — ВЕРТИКАЛЬНАЯ */
+.aui-navgroup-vertical .aui-nav {
+  display: block; /* ← ключевое: НЕ flex! */
+  margin: 12px 0 0;
+  padding: 0;
+}
+
+.aui-navgroup-vertical .aui-nav li {
+  display: block;
+  margin: 4px 0;
+}
+
+.aui-navgroup-vertical .aui-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  text-decoration: none;
+  color: var(--jira-text-secondary);
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+.aui-navgroup-vertical .aui-nav-item:hover,
+.aui-navgroup-vertical .aui-nav-selected .aui-nav-item {
+  background: var(--jira-hover);
+  color: var(--jira-text);
+}
+
+.aui-navgroup-vertical .aui-icon {
+  color: #5e6c84;
+}
+
+/* === ОСНОВНОЙ КОНТЕНТ === */
+.aui-page-panel {
+  flex: 1;
+  min-width: 0;
+}
+
+.aui-page-panel-inner {
+  padding: 0;
+}
+
+/* Заголовок страницы */
+.aui-page-header {
+  margin: 0 0 24px;
+  padding: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.aui-page-header-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+}
+
+.aui-page-header-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.aui-page-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--jira-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Хлебные крошки */
+.aui-nav.aui-nav-breadcrumbs {
+  display: block;
+  font-size: 14px;
+  color: var(--jira-text-secondary);
+}
+
+.aui-nav.aui-nav-breadcrumbs li {
+  display: inline;
+}
+
+.aui-nav.aui-nav-breadcrumbs li:not(:last-child)::after {
+  content: " / ";
+  margin: 0 4px;
+}
+
+.aui-page-header-actions {
+  margin-bottom: 4px;
+}
+
+/* === ПАНЕЛЬ ДЕЙСТВИЙ === */
+.command-bar {
+  margin: 16px 0;
+}
+
+.ops-menus.aui-toolbar2,
+.aui-toolbar2-inner,
+.aui-toolbar2-primary,
+.aui-toolbar2-secondary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.aui-toolbar2-inner {
+  justify-content: space-between;
+}
+
+.aui-button.toolbar-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 14px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* === ДВЕ КОЛОНКИ В ЗАДАЧЕ === */
+.aui-group.issue-body {
+  display: flex;
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.aui-item.issue-main-column {
+  flex: 2;
+  min-width: 0;
+}
+
+.aui-item.issue-side-column {
+  flex: 1;
+  min-width: 0;
+}
+
+/* === МОДУЛИ === */
+.module.toggle-wrap {
+  margin-bottom: 16px;
+}
+
+.module.toggle-wrap h4 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--jira-text);
+}
+
+/* === СПИСОК СВОЙСТВ === */
+.property-list {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 12px;
+}
+
+.property-list.two-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+}
+
+.property-list.two-cols .item {
+  display: block;
+}
+
+.property-list.two-cols .item-right {
+  justify-self: end;
+  text-align: right;
+}
+
+.property-list.two-cols .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+
+.property-list.two-cols .name {
+  white-space: nowrap;
+  font-weight: bold;
+  color: var(--jira-text);
+}
+
+.property-list.two-cols .value {
+  flex: 1;
+  min-width: 0;
+  color: var(--jira-text-secondary);
+}
+
+/* Метки */
+.aui-lozenge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* === ТЕКСТОВЫЙ КОНТЕНТ === */
+.user-content-block {
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+/* Люди / Даты */
+.module dl {
+  margin: 0;
+  padding: 0;
+}
+
+.module dt,
+.module dd {
+  margin: 0;
+  padding: 4px 0;
+  font-size: 14px;
+}
+
+.module dt {
+  font-weight: bold;
+  color: var(--jira-text);
+}
+
+.module dd {
+  color: var(--jira-text-secondary);
+  margin-left: 0;
+}
+
+/* Форма комментария */
+.comment-textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--jira-border);
+  border-radius: 3px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.field-issuecomment-body {
+  margin-bottom: 12px;
+}
+
+/* === ИКОНКИ === */
+.aui-icon-small {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+/* === АВАТАРЫ === */
+.aui-avatar {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+}
+
+.aui-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.aui-page-header-image {
+  margin-right: 16px;
+  flex-shrink: 0;
+}
+
+.aui-page-header-image .aui-avatar-project {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+}
+
+/* === DASHBOARD === */
+.dashboard-columns {
+  display: flex;
+  gap: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+  flex-wrap: wrap;
+}
+
+.dashboard-column {
+  flex: 1;
+  min-width: 300px;
+}
+
+.dashboard-gadget {
+  background: white;
+  border: 1px solid var(--jira-border);
+  border-radius: 3px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.dashboard-gadget h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--jira-text);
+}
+
+/* === СТРАНИЦА ПРОЕКТОВ === */
+.project-list {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.project-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  background: white;
+  border: 1px solid var(--jira-border);
+  border-radius: 3px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.project-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.project-title {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--jira-text);
+}
+
+.project-title a {
+  color: var(--jira-text);
+  text-decoration: none;
+}
+
+.project-title a:hover {
+  text-decoration: underline;
+}
+
+.project-key {
+  color: var(--jira-primary);
+  font-size: 14px;
+  margin-left: 8px;
+}
+
+.project-meta,
+.project-description {
+  margin: 0 0 4px 0;
+  color: var(--jira-text-secondary);
+  font-size: 14px;
+}
+
+.project-description {
+  margin-top: 8px;
+  color: var(--jira-text);
+}
+
+.project-actions {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* === ВЫПАДАЮЩИЕ МЕНЮ === */
+.aui-dropdown2 {
+  display: none;
+  position: absolute;
+  background: white;
+  border: 1px solid var(--jira-border);
+  border-radius: 3px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 1000;
+  min-width: 240px;
+  padding: 8px 0;
+}
+
+.aui-nav > li:hover .aui-dropdown2 {
+  display: block;
+}
+
+.aui-dropdown2-section {
+  padding: 0 8px 8px;
+}
+
+.aui-dropdown2-section strong {
+  display: block;
+  padding: 8px 8px 4px;
+  color: var(--jira-text-secondary);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.aui-list-truncate {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.aui-dropdown2 .aui-list-truncate li a {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  color: var(--jira-text);
+  text-decoration: none;
+  font-size: 14px;
+  gap: 6px;
+}
+
+.aui-dropdown2 .aui-list-truncate li a:hover {
+  background: var(--jira-hover);
+}
+
+/* === ФУТЕР === */
+#footer {
+  margin-top: 40px;
+  padding: 16px;
+  background: #f5f6f7;
+  text-align: center;
+  color: #6b778c;
+  font-size: 12px;
+}
+
+/* === ЗАГОЛОВКИ МОДУЛЕЙ === */
+.mod-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.mod-header .toggle-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--jira-text);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* === BADGE (наблюдатели) === */
+aui-badge,
+.aui-badge {
+  display: inline-block;
+  min-width: 18px;
+  padding: 0 6px;
+  height: 18px;
+  border-radius: 10px;
+  background: #e9edf0;
+  color: var(--jira-text-secondary);
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 18px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* === EDITABLE FIELD (карандаш-иконка) === */
+.overlay-icon.aui-iconfont-edit {
+  opacity: 0;
+  transition: opacity 0.2s;
+  margin-left: 4px;
+  color: var(--jira-text-secondary);
+}
+
+.view-issue-field.editable-field:hover .overlay-icon.aui-iconfont-edit,
+.view-issue-field.editable-field:focus .overlay-icon.aui-iconfont-edit {
+  opacity: 1;
+}
+
+/* === ССЫЛКИ В БЛОКЕ ЛЮДЕЙ === */
+.assign-to-me-link a,
+#watching-toggle {
+  font-size: 12px;
+  color: var(--jira-primary);
+  text-decoration: none;
+  margin-left: 8px;
+}
+
+.assign-to-me-link a:hover,
+#watching-toggle:hover {
+  text-decoration: underline;
+}
+
+/* Состояния наблюдения */
+#watching-toggle.watch-state-on::before {
+  content: "✅ ";
+}
+#watching-toggle.watch-state-off::before {
+  content: "👁️ ";
+}
+
+/* === СТИЛИ ДЛЯ ДАТ === */
+dl.dates dt,
+dl.dates dd {
+  font-size: 13px;
+}
+
+/* === ПОЛЕ "НАБЛЮДАТЕЛИ" === */
+#view-watcher-list {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+  color: inherit;
+}
+
+#view-watcher-list:hover aui-badge {
+  background: #dfe1e6;
+}
+
+.mod-content {
+  /* по умолчанию видим */
+}
