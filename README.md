@@ -37,7 +37,7 @@ php -S localhost:8080 -t frontend/web
 
 ## 📸 Скриншоты
 
-![ScreenShot](https://github.com/VohminV/cheburashka/blob/main/docs/Рабочий стол.png)
+![ScreenShot](https://github.com/VohminV/cheburashka/blob/main/docs/%D0%A0%D0%B0%D0%B1%D0%BE%D1%87%D0%B8%D0%B9%20%D1%81%D1%82%D0%BE%D0%BB.png)
 ![ScreenShot](https://github.com/VohminV/cheburashka/blob/main/docs/Проекты.png)
 ![ScreenShot](https://github.com/VohminV/cheburashka/blob/main/docs/Проект.png)
 ![ScreenShot](https://github.com/VohminV/cheburashka/blob/main/docs/Задачи.png)
