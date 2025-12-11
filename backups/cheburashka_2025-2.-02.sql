@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 8ugAsFJbalGUgfmIyH0IHV6XmH99aHO8zHqTvFww5F0yqR9Z0Ad9OSYlAPOgCAo
+\restrict CW1rWQeH0LjqPlwSlgUwXSuAvLrfhD6ispkRojH9HclYFyJqwenzUbVVBE8XsVk
 
 -- Dumped from database version 17.7
 -- Dumped by pg_dump version 17.7
@@ -188,11 +188,53 @@ CREATE TABLE public.issue (
     created_at timestamp without time zone DEFAULT now(),
     updated_at timestamp without time zone DEFAULT now(),
     priority_id integer,
-    resolution_id integer
+    resolution_id integer,
+    labels text
 );
 
 
 ALTER TABLE public.issue OWNER TO postgres;
+
+--
+-- Name: issue_attachment; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.issue_attachment (
+    id integer NOT NULL,
+    issue_id integer NOT NULL,
+    user_id integer NOT NULL,
+    filename character varying(255) NOT NULL,
+    stored_path character varying(255) NOT NULL,
+    mime_type character varying(100),
+    file_size bigint,
+    created_at timestamp without time zone DEFAULT now(),
+    file_path character varying(255) DEFAULT ''::character varying NOT NULL
+);
+
+
+ALTER TABLE public.issue_attachment OWNER TO postgres;
+
+--
+-- Name: issue_attachment_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.issue_attachment_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.issue_attachment_id_seq OWNER TO postgres;
+
+--
+-- Name: issue_attachment_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.issue_attachment_id_seq OWNED BY public.issue_attachment.id;
+
 
 --
 -- Name: issue_comment; Type: TABLE; Schema: public; Owner: postgres
@@ -591,6 +633,13 @@ ALTER TABLE ONLY public.issue ALTER COLUMN id SET DEFAULT nextval('public.issue_
 
 
 --
+-- Name: issue_attachment id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.issue_attachment ALTER COLUMN id SET DEFAULT nextval('public.issue_attachment_id_seq'::regclass);
+
+
+--
 -- Name: issue_comment id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -698,10 +747,18 @@ COPY public.board (id, name, project_id, created_at, updated_at) FROM stdin;
 -- Data for Name: issue; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.issue (id, project_id, issue_type_id, status_id, issue_key, summary, description, assignee_id, reporter_id, parent_issue_id, created_at, updated_at, priority_id, resolution_id) FROM stdin;
-1	1	2	3	CHEB-1	Проверка		\N	2	\N	2025-12-08 08:51:18	2025-12-08 14:51:29.365284	3	\N
-2	1	3	1	CHEB-2	йцу	йцу	2	2	\N	2025-12-10 09:12:30	2025-12-10 09:12:30	1	\N
-4	2	1	1	test-4	тест	тест	2	2	\N	2025-12-10 10:53:09	2025-12-10 10:53:09	3	\N
+COPY public.issue (id, project_id, issue_type_id, status_id, issue_key, summary, description, assignee_id, reporter_id, parent_issue_id, created_at, updated_at, priority_id, resolution_id, labels) FROM stdin;
+1	1	2	3	CHEB-1	Проверка		\N	2	\N	2025-12-08 08:51:18	2025-12-08 14:51:29.365284	3	\N	\N
+2	1	3	1	CHEB-2	йцу	йцу	2	2	\N	2025-12-10 09:12:30	2025-12-10 09:12:30	1	\N	\N
+4	2	1	1	test-4	тест	тест	2	2	\N	2025-12-10 10:53:09	2025-12-10 10:53:09	3	\N	\N
+\.
+
+
+--
+-- Data for Name: issue_attachment; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.issue_attachment (id, issue_id, user_id, filename, stored_path, mime_type, file_size, created_at, file_path) FROM stdin;
 \.
 
 
@@ -712,6 +769,7 @@ COPY public.issue (id, project_id, issue_type_id, status_id, issue_key, summary,
 COPY public.issue_comment (id, issue_id, user_id, body, created_at, updated_at) FROM stdin;
 1	1	2	Проверка	2025-12-08 10:19:34	2025-12-08 16:19:34.212299
 2	1	2	Проверка                	2025-12-10 10:49:05	2025-12-10 16:49:05.911569
+3	4	2	Проверка	2025-12-11 07:32:29	2025-12-11 13:32:29.715977
 \.
 
 
@@ -755,9 +813,9 @@ COPY public.issue_resolution (id, name, description) FROM stdin;
 --
 
 COPY public.issue_status (id, tenant_id, name, category) FROM stdin;
-1	1	To Do	TODO
-2	1	In Progress	IN_PROGRESS
-3	1	Done	DONE
+1	1	К выполнению	TODO
+2	1	В работе	IN_PROGRESS
+3	1	Готово	DONE
 \.
 
 
@@ -766,10 +824,10 @@ COPY public.issue_status (id, tenant_id, name, category) FROM stdin;
 --
 
 COPY public.issue_type (id, tenant_id, name, description, icon) FROM stdin;
-1	1	Task	\N	task
-2	1	Bug	\N	bug
-3	1	Story	\N	story
-4	1	Epic	\N	epic
+1	1	Задача	\N	task
+2	1	Ошибка	\N	bug
+3	1	История	\N	story
+4	1	Эпик	\N	epic
 \.
 
 
@@ -830,10 +888,17 @@ SELECT pg_catalog.setval('public.board_id_seq', 1, true);
 
 
 --
+-- Name: issue_attachment_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.issue_attachment_id_seq', 2, true);
+
+
+--
 -- Name: issue_comment_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.issue_comment_id_seq', 2, true);
+SELECT pg_catalog.setval('public.issue_comment_id_seq', 3, true);
 
 
 --
@@ -937,6 +1002,14 @@ ALTER TABLE ONLY public.auth_rule
 
 ALTER TABLE ONLY public.board
     ADD CONSTRAINT board_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: issue_attachment issue_attachment_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.issue_attachment
+    ADD CONSTRAINT issue_attachment_pkey PRIMARY KEY (id);
 
 
 --
@@ -1174,6 +1247,22 @@ ALTER TABLE ONLY public.issue
 
 
 --
+-- Name: issue_attachment issue_attachment_issue_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.issue_attachment
+    ADD CONSTRAINT issue_attachment_issue_id_fkey FOREIGN KEY (issue_id) REFERENCES public.issue(id) ON DELETE CASCADE;
+
+
+--
+-- Name: issue_attachment issue_attachment_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.issue_attachment
+    ADD CONSTRAINT issue_attachment_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id);
+
+
+--
 -- Name: issue_comment issue_comment_issue_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1305,5 +1394,5 @@ ALTER TABLE ONLY public.project
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 8ugAsFJbalGUgfmIyH0IHV6XmH99aHO8zHqTvFww5F0yqR9Z0Ad9OSYlAPOgCAo
+\unrestrict CW1rWQeH0LjqPlwSlgUwXSuAvLrfhD6ispkRojH9HclYFyJqwenzUbVVBE8XsVk
 

@@ -19,9 +19,9 @@ $this->title = 'Доска: ' . Html::encode($board->name);
         <div class="kanban-board" style="display: flex; gap: 24px; padding: 0 24px 24px; flex-wrap: nowrap;">
             <?php
             $columns = [
-                1 => 'To Do',
-                2 => 'In Progress',
-                3 => 'Done',
+                1 => 'К выполнению',
+                2 => 'В работе',
+                3 => 'Готово',
             ];
             ?>
 

@@ -55,6 +55,12 @@ class SiteController extends Controller
      */
 	public function actionIndex()
 	{
+		// 🔍 Если пришёл поисковый запрос — перенаправляем на страницу поиска
+		$q = Yii::$app->request->get('q');
+		if ($q !== null && trim($q) !== '') {
+			return $this->redirect(['issue/search', 'q' => $q]);
+		}
+	
 		$userId = Yii::$app->user->id;
 
 		// 1. Назначенные мне
@@ -123,5 +129,14 @@ class SiteController extends Controller
 
 		$model->password = '';
 		return $this->render('login', ['model' => $model]);
+	}
+	public function actionAbout()
+	{
+		return $this->render('about');
+	}
+	
+	public function actionKeyboardShortcuts()
+	{
+		return $this->render('keyboard-shortcuts');
 	}
 }

@@ -7,7 +7,8 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
-
+use yii\web\UploadedFile;
+use yii\web\Response; 
 
 use common\models\Project;
 use common\models\IssueType;
@@ -18,6 +19,7 @@ use common\models\IssueComment;
 use common\models\IssuePriority;
 use common\models\IssueResolution;
 use common\models\IssueWatcher;
+use common\models\IssueAttachment;
 
 class IssueController extends Controller
 {
@@ -189,6 +191,110 @@ class IssueController extends Controller
 			return ['success' => true];
 		} else {
 			return ['success' => false, 'error' => 'Не удалось сохранить'];
+		}
+	}
+	public function actionSearch()
+		{
+			$q = Yii::$app->request->get('q', '');
+			$issues = [];
+			
+			if (trim($q) !== '') {
+				$issues = Issue::find()
+					->where(['like', 'summary', $q])
+					->orWhere(['like', 'description', $q])
+					->with('project', 'assignee')
+					->limit(50)
+					->all();
+			}
+
+			return $this->render('search', [
+				'issues' => $issues,
+				'query' => $q,
+			]);
+		}
+	public function actionUploadAttachment()
+	{
+		Yii::$app->response->format = Response::FORMAT_JSON;
+
+		$issueId = Yii::$app->request->post('issue_id');
+		$issue = Issue::findOne($issueId);
+		if (!$issue) {
+			return ['success' => false, 'message' => 'Задача не найдена'];
+		}
+
+		$files = UploadedFile::getInstancesByName('files');
+		if (empty($files)) {
+			return ['success' => false, 'message' => 'Файлы не выбраны'];
+		}
+
+		$saved = 0;
+		foreach ($files as $file) {
+			$attachment = new IssueAttachment();
+			$attachment->issue_id = $issue->id;
+			$attachment->user_id = Yii::$app->user->id; // не забудь! это required
+			$attachment->filename = $file->name;
+			$attachment->stored_path = ''; // временно, установим после сохранения файла
+			$attachment->mime_type = $file->type;
+			$attachment->file_size = $file->size;
+			$attachment->created_at = Yii::$app->formatter->asDatetime(time(), 'php:Y-m-d H:i:s');
+
+			// Сохраняем файл
+			$dir = Yii::getAlias('@webroot/uploads/attachments');
+			if (!is_dir($dir)) {
+				mkdir($dir, 0777, true);
+			}
+			$newName = uniqid() . '_' . $file->name;
+			if ($file->saveAs("$dir/$newName")) {
+				$attachment->stored_path = "uploads/attachments/$newName";
+				if ($attachment->save()) {
+					$saved++;
+				} else {
+					// Лог ошибок (временно для отладки)
+					\Yii::error('Validation errors: ' . print_r($attachment->getErrors(), true));
+				}
+			}
+		}
+
+		return ['success' => $saved > 0, 'message' => "Загружено $saved файлов"];
+	}
+
+	private function formatBytes($size, $precision = 2)
+	{
+		$units = ['B', 'kB', 'MB', 'GB'];
+		for ($i = 0; $size > 1024 && $i < count($units) - 1; $i++) {
+			$size /= 1024;
+		}
+		return round($size, $precision) . ' ' . $units[$i];
+	}
+	
+	public function actionDeleteAttachment()
+	{
+		Yii::$app->response->format = Response::FORMAT_JSON;
+
+		$id = Yii::$app->request->post('id');
+		$attachment = IssueAttachment::findOne($id);
+
+		if (!$attachment) {
+			return ['success' => false, 'message' => 'Вложение не найдено'];
+		}
+
+		// Проверка: может удалять только автор задачи или автор вложения?
+		// (опционально)
+		// if ($attachment->user_id !== Yii::$app->user->id) {
+		//     return ['success' => false, 'message' => 'Недостаточно прав'];
+		// }
+
+		// Удаляем файл с диска
+		$filePath = Yii::getAlias('@webroot/' . $attachment->stored_path);
+		if (file_exists($filePath)) {
+			unlink($filePath);
+		}
+
+		// Удаляем из БД
+		if ($attachment->delete()) {
+			return ['success' => true];
+		} else {
+			return ['success' => false, 'message' => 'Ошибка при удалении из БД'];
 		}
 	}
 }

@@ -5,6 +5,8 @@ namespace common\models;
 use Yii;
 use yii\db\ActiveRecord;
 use common\models\IssueHistory;
+use common\models\IssueAttachment;
+use common\models\Issue;
 class Issue extends ActiveRecord
 {
     public static function tableName()
@@ -149,5 +151,10 @@ class Issue extends ActiveRecord
 		}
 
 		parent::afterSave($insert, $changedAttributes);
+	}
+	
+	public function getAttachments()
+	{
+		return $this->hasMany(IssueAttachment::class, ['issue_id' => 'id']);
 	}
 }

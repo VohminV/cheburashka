@@ -164,25 +164,7 @@ use yii\helpers\Url;
                 </div>
 
                 <!-- ВЛОЖЕНИЯ -->
-                <div class="module toggle-wrap">
-                    <div class="mod-header">
-                        <h4>Вложенные файлы</h4>
-                    </div>
-                    <div class="mod-content">
-                        <?php if (!empty($model->attachments)): ?>
-                            <ul>
-                                <?php foreach ($model->attachments as $att): ?>
-                                    <li>
-                                        <a href="<?= Html::encode($att->url) ?>"><?= Html::encode($att->filename) ?></a>
-                                        <span> (<?= Html::encode($att->size ?? '0B') ?>)</span>
-                                    </li>
-                                <?php endforeach; ?>
-                            </ul>
-                        <?php else: ?>
-                            <p>Нет вложений</p>
-                        <?php endif; ?>
-                    </div>
-                </div>
+				<?= $this->render('_attachments', ['model' => $model]) ?>
 
                 <!-- КОММЕНТАРИИ -->
                 <?= $this->render('_comments', ['model' => $model, 'commentModel' => $commentModel]) ?>

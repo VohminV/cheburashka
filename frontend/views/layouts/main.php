@@ -8,6 +8,7 @@ use yii\helpers\Url;
 <head>
     <meta charset="<?= Yii::$app->charset ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="csrf-token" content="<?= Yii::$app->request->csrfToken ?>">
     <?= Html::csrfMetaTags() ?>
     <title>Чебурашка</title>
     <?php $this->head() ?>
@@ -172,14 +173,19 @@ use yii\helpers\Url;
 
                 <div class="aui-header-secondary">
                     <ul class="aui-nav">
-                        <li id="quicksearch-menu">
-							<span class="aui-nav-link">
+							<li id="quicksearch-menu" class="aui-quicksearch-item">
 								<form action="<?= Url::to(['/issue/search']) ?>" method="get" class="aui-quicksearch">
-									<input type="text" name="q" placeholder="Поиск" class="search" />
-									<input type="submit" class="hidden" value="Поиск">
+									<input type="text"
+										   name="q"
+										   placeholder="Поиск"
+										   class="search"
+										   value="<?= htmlspecialchars(Yii::$app->request->get('q', '')) ?>"
+										   autocomplete="off" />
+									<button type="submit" class="aui-quicksearch-button" aria-label="Поиск">
+										🔍
+									</button>
 								</form>
-							</span>
-						</li>
+							</li>
                        <?php if (!Yii::$app->user->isGuest): ?>
 							<li id="user-options">
 								<a class="aui-dropdown2-trigger aui-dropdown2-trigger-arrowless" aria-haspopup="true" aria-controls="user-options-content">
@@ -244,6 +250,79 @@ $(document).ready(function() {
         function() { $(this).find('.aui-dropdown2').show(); },
         function() { $(this).find('.aui-dropdown2').hide(); }
     );
+});
+</script>
+
+<script>
+document.addEventListener('keydown', function (e) {
+    // Игнорируем, если фокус в input, textarea, select
+    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
+        return;
+    }
+
+    // Игнорируем, если нажаты Ctrl/Cmd/Alt (чтобы не конфликтовать с системными)
+    if (e.ctrlKey || e.metaKey || e.altKey) {
+        return;
+    }
+
+    const key = e.key.toLowerCase();
+
+    // Открыть поиск задач
+    if (key === '/') {
+        e.preventDefault();
+        const searchInput = document.querySelector('.aui-quicksearch .search');
+        if (searchInput) {
+            searchInput.focus();
+        }
+        return;
+    }
+
+    // Справка (эта страница)
+    if (key === '?') {
+        e.preventDefault();
+        window.location.href = '/index.php?r=site%2Fkeyboard-shortcuts';
+        return;
+    }
+
+    // Создать задачу
+    if (key === 'c') {
+        e.preventDefault();
+        window.location.href = '/index.php?r=issue%2Fcreate';
+        return;
+    }
+
+    // Перейти (Go to...)
+    if (key === 'g') {
+        e.preventDefault();
+        // Ждём вторую клавишу в течение 1.5 сек
+        let secondKey = null;
+        const timeout = setTimeout(() => {
+            // Если вторая клавиша не нажата — ничего не делаем
+        }, 1500);
+
+        const handler = function (event) {
+            secondKey = event.key.toLowerCase();
+            clearTimeout(timeout);
+            document.removeEventListener('keydown', handler);
+
+            switch (secondKey) {
+                case 'd': // Dashboard
+                    window.location.href = '/index.php?r=';
+                    break;
+                case 'p': // Projects
+                    window.location.href = '/index.php?r=project';
+                    break;
+                case 't': // Go to issue by key (откроем форму поиска)
+                    const search = document.querySelector('.aui-quicksearch .search');
+                    if (search) {
+                        search.focus();
+                    }
+                    break;
+            }
+        };
+
+        document.addEventListener('keydown', handler);
+    }
 });
 </script>
 

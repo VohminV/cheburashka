@@ -696,3 +696,211 @@ dl.dates dd {
 .mod-content {
   /* по умолчанию видим */
 }
+
+/* === ПОИСК В НАВИГАЦИИ === */
+#aui-header .aui-quicksearch-item {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.aui-quicksearch {
+    display: flex;
+    align-items: center;
+    height: 28px;
+}
+
+.aui-quicksearch .search {
+    width: 160px;
+    padding: 4px 8px;
+    border: none;
+    border-radius: 3px 0 0 3px;
+    font-size: 13px;
+    background: rgba(255,255,255,0.2);
+    color: white;
+    outline: none;
+}
+
+.aui-quicksearch-button {
+    background: rgba(255,255,255,0.25);
+    border: none;
+    border-left: 1px solid rgba(255,255,255,0.4);
+    border-radius: 0 3px 3px 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.aui-quicksearch-button:hover {
+    background: rgba(255,255,255,0.4);
+}
+
+.aui-quicksearch-button:focus {
+    outline: none;
+}
+
+/* === ВЛОЖЕНИЯ СТИЛЬ === */
+
+/* Основной заголовок модуля — flex-контейнер */
+.mod-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 12px;
+  margin: 0;
+  padding: 8px 0;
+}
+
+/* ГРУППА: стрелка + заголовок */
+.toggle-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.toggle-title-group .toggle-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #172b4d;
+}
+
+/* Убираем возможные стили у кнопки-стрелки */
+.toggle-title-group .aui-button.toggle-title {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Опции — прижаты к правому краю */
+.mod-header .ops {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  flex-shrink: 0;
+}
+
+.mod-header .ops li {
+  margin: 0;
+  padding: 0;
+  list-style: none !important;
+  display: inline-block;
+}
+
+/* Защита от ::marker даже в новых браузерах */
+.mod-header .ops li::marker {
+  content: "" !important;
+}
+
+/* Кнопка "…" — как в Jira */
+.aui-button.aui-button-subtle.js-default-dropdown {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: 3px;
+  color: #5e6c84;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+}
+
+.aui-button.aui-button-subtle.js-default-dropdown:hover {
+  background: #091e420a;
+  color: #172b4d;
+}
+
+/* === Список вложений === */
+.item-attachments {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px 0;
+}
+
+.item-attachments li {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--jira-border);
+}
+
+.item-attachments li:last-child {
+  border-bottom: none;
+}
+
+.item-attachments dt,
+.item-attachments dd {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.item-attachments dt {
+  font-weight: normal;
+  color: var(--jira-text);
+}
+
+.item-attachments dd {
+  color: var(--jira-text-secondary);
+  font-size: 13px;
+}
+
+.attachment-title {
+  text-decoration: none;
+  color: var(--jira-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.attachment-title:hover {
+  text-decoration: underline;
+}
+
+/* === Drop zone === */
+.issue-drop-zone {
+  border: 2px dashed var(--jira-border);
+  border-radius: 4px;
+  padding: 16px;
+  text-align: center;
+  background: #fafbfc;
+  margin-bottom: 16px;
+}
+
+.issue-drop-zone.highlight {
+  border-color: var(--jira-primary);
+  background: rgba(249, 115, 22, 0.05);
+}
+
+.issue-drop-zone__button {
+  background: var(--jira-primary);
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 13px;
+  margin-left: 4px;
+}
+
+.issue-drop-zone__button:hover {
+  background: #d97732;
+}
+
+.issue-drop-zone__file {
+  display: none;
+}
