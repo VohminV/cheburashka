@@ -22,20 +22,20 @@ use yii\helpers\Url;
             <div class="aui-header-inner">
                 <div class="aui-header-primary">
                     <span id="logo" class="aui-header-logo aui-header-logo-custom">
-                        <a href="<?= Url::to(['/']) ?>" aria-label="На главную" class="aui-header-logo-text">
-                            <span class="aui-header-logo-text">Чебурашка</span>
-                        </a>
-                    </span>
+					<a href="<?= Url::to(['/']) ?>" aria-label="На главную" class="aui-header-logo-text">
+						<img src="<?= Yii::getAlias('@web') ?>/images/logo.png"
+							 alt="Чебурашка"
+							 style="height: 28px; vertical-align: middle; margin-right: 8px;">
+						<span class="aui-header-logo-text">Чебурашка</span>
+					</a>
+				</span>
 
                     <ul class="aui-nav">
-                        <li>
-                            <?= Html::a('Рабочий стол', ['/'], [
-                                'class' => 'aui-nav-link aui-dropdown2-trigger',
-                                'id' => 'home_link',
-                                'aria' => ['haspopup' => 'true', 'controls' => 'home_link-content']
-                            ]) ?>
-                            <div class="aui-dropdown2 aui-style-default" id="home_link-content"></div>
-                        </li>
+						<li>
+							<?= Html::a('Рабочий стол', ['/'], [
+								'class' => 'aui-nav-link'
+							]) ?>
+						</li>
                         <li>
                             <?= Html::a('Проекты', ['/project'], [
                                 'class' => 'aui-nav-link aui-dropdown2-trigger',
@@ -72,12 +72,94 @@ use yii\helpers\Url;
                                 'id' => 'find_link',
                                 'aria' => ['haspopup' => 'true', 'controls' => 'find_link-content']
                             ]) ?>
-                            <div class="aui-dropdown2 aui-style-default" id="find_link-content"></div>
+                            <div class="aui-dropdown2 aui-style-default" id="find_link-content">
+								<!-- Поиск и текущий запрос -->
+								<div class="aui-dropdown2-section">
+									<ul class="aui-list-truncate">
+										<li><a href="<?= \yii\helpers\Url::to(['/issue']) ?>">Поиск задач</a></li>
+										<!-- Можно добавить "Текущий поиск", если поддерживается -->
+									</ul>
+								</div>
+
+								<!-- Недавние задачи -->
+								<?php
+								// Получаем последние 5 задач, просматриваемых пользователем (или просто последние созданные)
+								$recentIssues = \common\models\Issue::find()
+									->with('project')
+									->orderBy('updated_at DESC')
+									->limit(5)
+									->all();
+								?>
+								<?php if (!empty($recentIssues)): ?>
+									<div class="aui-dropdown2-section">
+										<strong>Недавние задачи</strong>
+										<ul class="aui-list-truncate">
+											<?php foreach ($recentIssues as $issue): ?>
+												<li>
+													<a href="<?= \yii\helpers\Url::to(['/issue/view', 'id' => $issue->id]) ?>"
+													   class="aui-icon-container issue-link"
+													   data-issue-key="<?= $issue->issue_key ?>">
+														<?= $issue->issue_key ?> <?= \yii\helpers\Html::encode($issue->summary) ?>
+													</a>
+												</li>
+											<?php endforeach; ?>
+											<li><a href="<?= \yii\helpers\Url::to(['/issue']) ?>" class="filter-link">еще...</a></li>
+										</ul>
+									</div>
+								<?php endif; ?>
+
+								<!-- Фильтры -->
+								<div class="aui-dropdown2-section">
+									<strong>Фильтры</strong>
+									<ul class="aui-list-truncate">
+										<li><a href="<?= \yii\helpers\Url::to(['/issue', 'assignee_id' => Yii::$app->user->id, 'status_id' => 2]) ?>" class="filter-link">Мои задачи в работе</a></li>
+										<li><a href="<?= \yii\helpers\Url::to(['/issue', 'reporter_id' => Yii::$app->user->id]) ?>" class="filter-link">Сообщённые мной</a></li>
+									</ul>
+								</div>
+
+								<!-- Управление (опционально) -->
+								<div class="aui-dropdown2-section">
+									<ul class="aui-list-truncate">
+										<li><a href="#" style="color: #6b778c; cursor: not-allowed;" title="Планируется в будущем">Импортировать из CSV</a></li>
+										<li><a href="<?= \yii\helpers\Url::to(['/issue']) ?>">Управление фильтрами</a></li>
+									</ul>
+								</div>
+							</div>
                         </li>
-                        <li>
-                            <a href="#" class="aui-nav-link aui-dropdown2-trigger" id="greenhopper_menu" aria-haspopup="true" aria-controls="greenhopper_menu-content">Доски</a>
-                            <div class="aui-dropdown2 aui-style-default" id="greenhopper_menu-content"></div>
-                        </li>
+						<li>
+							<a href="#" class="aui-nav-link aui-dropdown2-trigger" id="greenhopper_menu" aria-haspopup="true" aria-controls="greenhopper_menu-content">Доски</a>
+							<div class="aui-dropdown2 aui-style-default" id="greenhopper_menu-content">
+								<?php
+								// Получаем до 3 последних досок
+								$recentBoards = \common\models\Board::find()
+									->orderBy('updated_at DESC')
+									->limit(5)
+									->all();
+								?>
+								<?php if (!empty($recentBoards)): ?>
+									<div class="aui-dropdown2-section">
+										<strong>Недавние доски</strong>
+										<ul class="aui-list-truncate">
+											<?php foreach ($recentBoards as $board): ?>
+												<li>
+													<a href="<?= \yii\helpers\Url::to(['/board/view', 'id' => $board->id]) ?>">
+														<?= \yii\helpers\Html::encode($board->name) ?>
+													</a>
+												</li>
+											<?php endforeach; ?>
+										</ul>
+									</div>
+								<?php endif; ?>
+
+								<div class="aui-dropdown2-section">
+									<ul class="aui-list-truncate">
+										<li>
+											<a href="<?= \yii\helpers\Url::to(['/board']) ?>">Просмотр всех досок</a>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</li>
                         <li id="create-menu">
                             <?= Html::a('Создать', ['/issue/create'], [
                                 'class' => 'aui-button aui-button-primary',

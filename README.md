@@ -12,50 +12,38 @@
 
 ### 2. Настрой базу данных
 
-Создай БД в PostgreSQL:
+Установите PostgreSQL.
 
-```sql
-CREATE DATABASE cheburashka;
-```
-
-Скопируй пример конфигурации:
+Разверните структуру и данные из бэкапа:
 
 ```bash
-cp common/config/db.example.php common/config/db.php
+psql -U postgres -d cheburashka -f backups/cheburashka_*.sql
 ```
+Файл common/config/db.php уже настроен под стандартного пользователя PostgreSQL (postgres/postgres) и базу postgres.
 
-Отредактируй `common/config/db.php`:
+### 4. Запуск приложения
 
-```php
-'username' => 'your_user',
-'password' => 'your_pass',
-'dsn' => 'pgsql:host=localhost;dbname=cheburashka',
-```
+Проект представляет собой стандартное Yii2-приложение.  
+Вы можете развернуть его на любом веб-сервере по вашему выбору (Apache, Nginx, встроенный PHP-сервер и т.д.).
 
-### 3. Выполни миграции
-
-```bash
-php yii migrate
-```
-
-### 4. Запусти сервер
-
-Через XAMPP — положи проект в **htdocs** и открой в браузере.
-
-Или через встроенный PHP‑сервер:
+Пример запуска через встроенный PHP-сервер:
 
 ```bash
 php -S localhost:8080 -t frontend/web
 ```
+После этого откройте в браузере: http://localhost:8080
 
-Перейди по адресу: **[http://localhost:8080](http://localhost:8080)**
 
----
 
 ## 📸 Скриншоты
 
-* **Страница задачи**
-* **Список проектов**
+![ScreenShot](https://github.com/VohminV/cheburashka/blob/main/docs/Рабочий стол.png)
+![ScreenShot](https://github.com/VohminV/cheburashka/blob/main/docs/Проекты.png)
+![ScreenShot](https://github.com/VohminV/cheburashka/blob/main/docs/Проект.png)
+![ScreenShot](https://github.com/VohminV/cheburashka/blob/main/docs/Задачи.png)
+![ScreenShot](https://github.com/VohminV/cheburashka/blob/main/docs/Задача.png)
+![ScreenShot](https://github.com/VohminV/cheburashka/blob/main/docs/Доски.png)
+![ScreenShot](https://github.com/VohminV/cheburashka/blob/main/docs/Доска.png)
 
 Скриншоты находятся в папке **docs/**.
 

@@ -18,7 +18,17 @@ use yii\helpers\Url;
                 <!-- Аватар проекта -->
                 <div class="aui-page-header-image">
                     <a href="<?= Url::to(['/project/view', 'id' => $model->project->id]) ?>" title="<?= Html::encode($model->project->name) ?>">
-                        <span class="aui-avatar aui-avatar-project" style="display: flex; align-items: center; justify-content: center; background-color: #0052cc; color: white; font-weight: bold;">
+                        <span class="aui-avatar aui-avatar-project" style="
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            background-color: var(--jira-primary);
+                            color: white;
+                            font-weight: bold;
+                            width: 40px;
+                            height: 40px;
+                            border-radius: 4px;
+                        ">
                             <?= strtoupper(mb_substr(Html::encode($model->project->project_key ?? $model->project->name), 0, 1, 'UTF-8')) ?>
                         </span>
                     </a>
@@ -80,8 +90,8 @@ use yii\helpers\Url;
                                     <span class="name">Тип:</span>
                                     <span class="value">
                                         <?php if ($model->issueType): ?>
-                                            <span class="aui-icon-container" style="display: inline-flex; align-items: center; gap: 6px;">
-                                                <span style="font-size: 14px; color: #6b778c;"><?= mb_substr($model->issueType->name, 0, 1) ?></span>
+                                            <span style="display: inline-flex; align-items: center; gap: 6px; color: var(--jira-text-secondary);">
+                                                <span><?= mb_substr($model->issueType->name, 0, 1) ?></span>
                                                 <?= Html::encode($model->issueType->name) ?>
                                             </span>
                                         <?php else: ?>—<?php endif; ?>
@@ -103,14 +113,12 @@ use yii\helpers\Url;
                                                 }; ?>;
                                                 color: <?= match($model->status->name) {
                                                     'Готово' => '#006e52',
-                                                    'В работе' => '#0052cc',
+                                                    'В работе' => 'var(--jira-primary)',
                                                     'Открыто' => '#573900',
-                                                    'Закрыто' => '#6b778c',
-                                                    default => '#6b778c'
+                                                    'Закрыто' => 'var(--jira-text-secondary)',
+                                                    default => 'var(--jira-text-secondary)'
                                                 }; ?>;
-                                            ">
-                                                <?= Html::encode($model->status->name) ?>
-                                            </span>
+                                            "><?= Html::encode($model->status->name) ?></span>
                                         <?php else: ?>—<?php endif; ?>
                                     </span>
                                 </div>
@@ -181,7 +189,7 @@ use yii\helpers\Url;
 
             </div>
 
-            <!-- ПРАВАЯ КОЛОНКА: БОКОВАЯ ПАНЕЛЬ -->
+            <!-- ПРАВАЯ КОЛОНКА -->
             <div class="aui-item issue-side-column">
 
                 <!-- Люди -->
@@ -197,9 +205,17 @@ use yii\helpers\Url;
                                     <span class="view-issue-field editable-field inactive">
                                         <span class="aui-avatar aui-avatar-small">
                                             <span class="aui-avatar-inner">
-                                                <span class="aui-avatar-project" style="background: #0052cc; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px;">
-                                                    <?= mb_substr(Html::encode($model->assignee->username), 0, 1, 'UTF-8') ?>
-                                                </span>
+                                                <span style="
+                                                    display: flex;
+                                                    align-items: center;
+                                                    justify-content: center;
+                                                    width: 100%;
+                                                    height: 100%;
+                                                    background: var(--jira-primary);
+                                                    color: white;
+                                                    font-size: 10px;
+                                                    border-radius: 50%;
+                                                "><?= mb_substr(Html::encode($model->assignee->username), 0, 1, 'UTF-8') ?></span>
                                             </span>
                                         </span>
                                         <?= Html::encode($model->assignee->username) ?>
@@ -226,9 +242,17 @@ use yii\helpers\Url;
                                     <span class="view-issue-field">
                                         <span class="aui-avatar aui-avatar-small">
                                             <span class="aui-avatar-inner">
-                                                <span class="aui-avatar-project" style="background: #344563; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px;">
-                                                    <?= mb_substr(Html::encode($model->reporter->username), 0, 1, 'UTF-8') ?>
-                                                </span>
+                                                <span style="
+                                                    display: flex;
+                                                    align-items: center;
+                                                    justify-content: center;
+                                                    width: 100%;
+                                                    height: 100%;
+                                                    background: var(--jira-text-secondary);
+                                                    color: white;
+                                                    font-size: 10px;
+                                                    border-radius: 50%;
+                                                "><?= mb_substr(Html::encode($model->reporter->username), 0, 1, 'UTF-8') ?></span>
                                             </span>
                                         </span>
                                         <?= Html::encode($model->reporter->username) ?>

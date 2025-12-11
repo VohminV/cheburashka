@@ -1,14 +1,13 @@
 /* === ОСНОВНЫЕ ПЕРЕМЕННЫЕ === */
 :root {
-  --jira-bg: #f4f5f7;
-  --jira-header-bg: #0747a6;
-  --jira-primary: #0052cc;
-  --jira-text: #172b4d;
-  --jira-text-secondary: #5e6c84;
-  --jira-border: #dfe1e6;
-  --jira-hover: #f4f5f7;
+  --jira-bg: #fff8f0;           
+  --jira-header-bg: #d97732;    
+  --jira-primary: #f97316;      
+  --jira-text: #372a1a;         
+  --jira-text-secondary: #7a6b5a;
+  --jira-border: #f0d9c5;      
+  --jira-hover: #ffe8d0;        
 }
-
 * {
   box-sizing: border-box;
 }

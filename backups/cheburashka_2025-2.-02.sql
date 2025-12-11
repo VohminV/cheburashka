@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 64jbpSu045ejqze6R1lb6ZgnWmWRH6qqePKVcxtfcHsLIT6mbl0F9GQFus8Ogwy
+\restrict 8ugAsFJbalGUgfmIyH0IHV6XmH99aHO8zHqTvFww5F0yqR9Z0Ad9OSYlAPOgCAo
 
 -- Dumped from database version 17.7
 -- Dumped by pg_dump version 17.7
@@ -132,6 +132,43 @@ CREATE TABLE public.auth_rule (
 
 
 ALTER TABLE public.auth_rule OWNER TO postgres;
+
+--
+-- Name: board; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.board (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    project_id integer NOT NULL,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.board OWNER TO postgres;
+
+--
+-- Name: board_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.board_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.board_id_seq OWNER TO postgres;
+
+--
+-- Name: board_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.board_id_seq OWNED BY public.board.id;
+
 
 --
 -- Name: issue; Type: TABLE; Schema: public; Owner: postgres
@@ -540,6 +577,13 @@ ALTER SEQUENCE public.user_id_seq OWNED BY public."user".id;
 
 
 --
+-- Name: board id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.board ALTER COLUMN id SET DEFAULT nextval('public.board_id_seq'::regclass);
+
+
+--
 -- Name: issue id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -642,12 +686,22 @@ COPY public.auth_rule (name, data, created_at, updated_at) FROM stdin;
 
 
 --
+-- Data for Name: board; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.board (id, name, project_id, created_at, updated_at) FROM stdin;
+1	Проверка	1	2025-12-11 08:47:01.605049	2025-12-11 08:47:01.605049
+\.
+
+
+--
 -- Data for Name: issue; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.issue (id, project_id, issue_type_id, status_id, issue_key, summary, description, assignee_id, reporter_id, parent_issue_id, created_at, updated_at, priority_id, resolution_id) FROM stdin;
 1	1	2	3	CHEB-1	Проверка		\N	2	\N	2025-12-08 08:51:18	2025-12-08 14:51:29.365284	3	\N
 2	1	3	1	CHEB-2	йцу	йцу	2	2	\N	2025-12-10 09:12:30	2025-12-10 09:12:30	1	\N
+4	2	1	1	test-4	тест	тест	2	2	\N	2025-12-10 10:53:09	2025-12-10 10:53:09	3	\N
 \.
 
 
@@ -657,6 +711,7 @@ COPY public.issue (id, project_id, issue_type_id, status_id, issue_key, summary,
 
 COPY public.issue_comment (id, issue_id, user_id, body, created_at, updated_at) FROM stdin;
 1	1	2	Проверка	2025-12-08 10:19:34	2025-12-08 16:19:34.212299
+2	1	2	Проверка                	2025-12-10 10:49:05	2025-12-10 16:49:05.911569
 \.
 
 
@@ -665,6 +720,7 @@ COPY public.issue_comment (id, issue_id, user_id, body, created_at, updated_at) 
 --
 
 COPY public.issue_history (id, issue_id, user_id, field, old_value, new_value, created_at) FROM stdin;
+1	4	2	created	\N	Задача создана	2025-12-10 16:53:09.66111
 \.
 
 
@@ -744,6 +800,7 @@ m190124_110200_add_verification_token_column_to_user_table	1765156431
 
 COPY public.project (id, tenant_id, name, project_key, description, lead_user_id, created_at) FROM stdin;
 1	1	Чебурашка	CHEB	\N	2	2025-12-08 09:35:04.156388
+2	1	тест	test	тест	2	2025-12-10 16:52:17.561941
 \.
 
 
@@ -766,24 +823,31 @@ COPY public."user" (id, username, auth_key, password_hash, password_reset_token,
 
 
 --
+-- Name: board_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.board_id_seq', 1, true);
+
+
+--
 -- Name: issue_comment_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.issue_comment_id_seq', 1, true);
+SELECT pg_catalog.setval('public.issue_comment_id_seq', 2, true);
 
 
 --
 -- Name: issue_history_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.issue_history_id_seq', 1, false);
+SELECT pg_catalog.setval('public.issue_history_id_seq', 1, true);
 
 
 --
 -- Name: issue_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.issue_id_seq', 3, true);
+SELECT pg_catalog.setval('public.issue_id_seq', 5, true);
 
 
 --
@@ -818,7 +882,7 @@ SELECT pg_catalog.setval('public.issue_type_id_seq', 4, true);
 -- Name: project_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.project_id_seq', 1, true);
+SELECT pg_catalog.setval('public.project_id_seq', 2, true);
 
 
 --
@@ -865,6 +929,14 @@ ALTER TABLE ONLY public.auth_item
 
 ALTER TABLE ONLY public.auth_rule
     ADD CONSTRAINT auth_rule_pkey PRIMARY KEY (name);
+
+
+--
+-- Name: board board_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.board
+    ADD CONSTRAINT board_pkey PRIMARY KEY (id);
 
 
 --
@@ -1020,6 +1092,13 @@ ALTER TABLE ONLY public."user"
 
 
 --
+-- Name: idx_board_project_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_board_project_id ON public.board USING btree (project_id);
+
+
+--
 -- Name: idx_comment_issue_id; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1076,6 +1155,14 @@ ALTER TABLE ONLY public.auth_item_child
 
 ALTER TABLE ONLY public.auth_item_child
     ADD CONSTRAINT auth_item_child_parent_fkey FOREIGN KEY (parent) REFERENCES public.auth_item(name) ON DELETE CASCADE;
+
+
+--
+-- Name: board fk_board_project; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.board
+    ADD CONSTRAINT fk_board_project FOREIGN KEY (project_id) REFERENCES public.project(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -1218,5 +1305,5 @@ ALTER TABLE ONLY public.project
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 64jbpSu045ejqze6R1lb6ZgnWmWRH6qqePKVcxtfcHsLIT6mbl0F9GQFus8Ogwy
+\unrestrict 8ugAsFJbalGUgfmIyH0IHV6XmH99aHO8zHqTvFww5F0yqR9Z0Ad9OSYlAPOgCAo
 

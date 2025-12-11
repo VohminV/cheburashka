@@ -166,4 +166,29 @@ class IssueController extends Controller
 
 		return $this->redirect(['view', 'id' => $id]);
 	}
+	
+	public function actionUpdateStatus()
+	{
+		\Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+		if (!\Yii::$app->request->isPost) {
+			return ['success' => false, 'error' => 'Метод не поддерживается'];
+		}
+
+		$data = \Yii::$app->request->post();
+		$issue = Issue::findOne($data['id'] ?? null);
+
+		if (!$issue) {
+			return ['success' => false, 'error' => 'Задача не найдена'];
+		}
+
+		$issue->status_id = (int)$data['status_id'];
+		$issue->updated_at = date('Y-m-d H:i:s');
+
+		if ($issue->save(false, ['status_id', 'updated_at'])) {
+			return ['success' => true];
+		} else {
+			return ['success' => false, 'error' => 'Не удалось сохранить'];
+		}
+	}
 }
