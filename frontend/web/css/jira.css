@@ -555,6 +555,55 @@ body#jira {
   padding: 8px 0;
 }
 
+/* === Выпадающее меню для вложений (поддержка твоего стиля) === */
+.aui-dd-parent {
+  position: relative;
+  display: inline-block;
+}
+
+.aui-dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0; /* прижимаем к правому краю родителя */
+  background: white;
+  border: 1px solid var(--jira-border);
+  border-radius: 3px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 200px;
+  padding: 8px 0;
+  margin-top: 4px;
+}
+
+.aui-dd-parent:hover .aui-dropdown-content {
+  display: block;
+}
+
+/* Секции внутри выпадашки */
+.aui-dropdown-content .aui-list-section {
+  padding: 0 8px 8px;
+}
+
+.aui-dropdown-content .aui-list-section:first-child {
+  padding-top: 8px;
+}
+
+.aui-dropdown-content .aui-list-section a.aui-list-item-link {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  color: var(--jira-text);
+  text-decoration: none;
+  font-size: 14px;
+  gap: 6px;
+  border-radius: 3px;
+}
+
+.aui-dropdown-content .aui-list-section a.aui-list-item-link:hover {
+  background: var(--jira-hover);
+}
+
 .aui-nav > li:hover .aui-dropdown2 {
   display: block;
 }
@@ -903,4 +952,10 @@ dl.dates dd {
 
 .issue-drop-zone__file {
   display: none;
+}
+
+.aui-list-section:not(:first-child) {
+    border-top: 1px solid var(--jira-border);
+    margin-top: 4px;
+    padding-top: 4px;
 }

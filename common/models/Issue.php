@@ -157,4 +157,29 @@ class Issue extends ActiveRecord
 	{
 		return $this->hasMany(IssueAttachment::class, ['issue_id' => 'id']);
 	}
+		
+	public function getWorklogs()
+	{
+		return $this->hasMany(IssueWorklog::class, ['issue_id' => 'id'])
+			->with('user')
+			->orderBy('created_at DESC');
+	}
+
+	public function getTotalTimeSpent()
+	{
+		return (int)$this->getWorklogs()->sum('time_spent'); // в тех же единицах, что и time_spent
+	}
+
+	public function getFormattedTotalTime()
+	{
+		$seconds = $this->getTotalTimeSpent();
+		$minutes = (int)($seconds / 60);
+		$hours = (int)($minutes / 60);
+		$mins = $minutes % 60;
+
+		if ($hours > 0) {
+			return $hours . 'ч ' . ($mins > 0 ? $mins . 'м' : '');
+		}
+		return $mins . 'м';
+	}
 }

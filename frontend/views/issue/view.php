@@ -65,9 +65,135 @@ use yii\helpers\Url;
                             'encode' => false
                         ]) ?>
                     </div>
-                    <div class="aui-toolbar2-secondary">
-                        <?= Html::a('📤 Экспорт', '#', ['class' => 'aui-button aui-button-subtle']) ?>
-                    </div>
+					<div class="aui-toolbar2-secondary">
+						<?= Html::a('📤 Экспорт', '#', ['class' => 'aui-button aui-button-subtle']) ?>
+
+						<!-- Контейнер для кнопки и выпадающего меню -->
+						<div style="position: relative; display: inline-block;">
+							<!-- Триггер меню -->
+							<a href="#"
+							   class="aui-button aui-button-light aui-dropdown2-trigger js-issue-actions-trigger"
+							   aria-haspopup="true"
+							   aria-expanded="false"
+							   role="button"
+							   style="text-decoration: none;">
+								<span class="aui-icon aui-icon-small">⋯</span>
+								<span class="aui-icon-dropdown" style="margin-left: 4px; vertical-align: middle;"></span>
+							</a>
+
+							<!-- Выпадающее меню (сразу после кнопки, внутри relative-контейнера) -->
+							<div class="aui-dropdown2 js-issue-actions-dropdown"
+								 style="display: none; position: absolute; top: 100%; left: 0; z-index: 1000;
+										min-width: 200px; margin-top: 4px;
+										box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+										border: 1px solid #dfe1e6;
+										background: #fff;
+										border-radius: 3px;">
+								<!-- Section 1: Работа -->
+								<div class="aui-dropdown2-section">
+									<div class="aui-dropdown2-item-group" role="group">
+										<?= Html::a('<span class="trigger-label">Вести журнал работы</span>', '#', [
+											'class' => 'aui-dropdown2-item',
+											'role' => 'menuitem',
+											'tabindex' => '-1',
+											'style' => 'display: block; padding: 6px 12px; color: #172b4d; text-decoration: none;',
+										]) ?>
+									</div>
+								</div>
+
+								<!-- Section 2: Вложения -->
+								<div class="aui-dropdown2-section">
+									<div class="aui-dropdown2-item-group" role="group">
+										<?= Html::a('<span class="trigger-label">Прикрепить файлы</span>', Url::to(['attachment/upload', 'id' => $model->id]), [
+											'class' => 'aui-dropdown2-item',
+											'role' => 'menuitem',
+											'tabindex' => '-1',
+											'style' => 'display: block; padding: 6px 12px; color: #172b4d; text-decoration: none;',
+										]) ?>
+										<?= Html::a('<span class="trigger-label">Прикрепить скриншоты</span>', '#', [
+											'class' => 'aui-dropdown2-item',
+											'role' => 'menuitem',
+											'tabindex' => '-1',
+											'style' => 'display: block; padding: 6px 12px; color: #172b4d; text-decoration: none;',
+											'onclick' => 'alert("Скриншоты — в будущем!"); return false;',
+										]) ?>
+									</div>
+								</div>
+
+								<!-- Section 3: Наблюдатели -->
+								<div class="aui-dropdown2-section">
+									<div class="aui-dropdown2-item-group" role="group">
+										<?= Html::a('<span class="trigger-label">Наблюдать за задачей</span>', '#', [
+											'class' => 'aui-dropdown2-item',
+											'role' => 'menuitem',
+											'tabindex' => '-1',
+											'style' => 'display: block; padding: 6px 12px; color: #172b4d; text-decoration: none;',
+										]) ?>
+										<?= Html::a('<span class="trigger-label">Наблюдатели</span>', Url::to(['issue/manage-watchers', 'id' => $model->id]), [
+											'class' => 'aui-dropdown2-item',
+											'role' => 'menuitem',
+											'tabindex' => '-1',
+											'style' => 'display: block; padding: 6px 12px; color: #172b4d; text-decoration: none;',
+										]) ?>
+									</div>
+								</div>
+
+								<!-- Section 4: Подзадачи -->
+								<div class="aui-dropdown2-section">
+									<div class="aui-dropdown2-item-group" role="group">
+										<?= Html::a('<span class="trigger-label">Создать подзадачу</span>', Url::to(['issue/create-subtask', 'parentId' => $model->id]), [
+											'class' => 'aui-dropdown2-item',
+											'role' => 'menuitem',
+											'tabindex' => '-1',
+											'style' => 'display: block; padding: 6px 12px; color: #172b4d; text-decoration: none;',
+										]) ?>
+										<?= Html::a('<span class="trigger-label">Преобразовать в подзадачу</span>', '#', [
+											'class' => 'aui-dropdown2-item',
+											'role' => 'menuitem',
+											'tabindex' => '-1',
+											'style' => 'display: block; padding: 6px 12px; color: #172b4d; text-decoration: none;',
+										]) ?>
+									</div>
+								</div>
+
+								<!-- Section 5: Прочее -->
+								<div class="aui-dropdown2-section">
+									<div class="aui-dropdown2-item-group" role="group">
+										<?= Html::a('<span class="trigger-label">Создать связанную задачу</span>', '#', [
+											'class' => 'aui-dropdown2-item',
+											'role' => 'menuitem',
+											'tabindex' => '-1',
+											'style' => 'display: block; padding: 6px 12px; color: #172b4d; text-decoration: none;',
+										]) ?>
+										<?= Html::a('<span class="trigger-label">Переместить</span>', Url::to(['issue/move', 'id' => $model->id]), [
+											'class' => 'aui-dropdown2-item',
+											'role' => 'menuitem',
+											'tabindex' => '-1',
+											'style' => 'display: block; padding: 6px 12px; color: #172b4d; text-decoration: none;',
+										]) ?>
+										<?= Html::a('<span class="trigger-label">Связать</span>', '#', [
+											'class' => 'aui-dropdown2-item',
+											'role' => 'menuitem',
+											'tabindex' => '-1',
+											'style' => 'display: block; padding: 6px 12px; color: #172b4d; text-decoration: none;',
+										]) ?>
+										<?= Html::a('<span class="trigger-label">Клонировать</span>', Url::to(['issue/clone', 'id' => $model->id]), [
+											'class' => 'aui-dropdown2-item',
+											'role' => 'menuitem',
+											'tabindex' => '-1',
+											'style' => 'display: block; padding: 6px 12px; color: #172b4d; text-decoration: none;',
+										]) ?>
+										<?= Html::a('<span class="trigger-label">Метки</span>', '#', [
+											'class' => 'aui-dropdown2-item',
+											'role' => 'menuitem',
+											'tabindex' => '-1',
+											'style' => 'display: block; padding: 6px 12px; color: #172b4d; text-decoration: none;',
+										]) ?>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
                 </div>
             </div>
         </div>
@@ -292,4 +418,49 @@ use yii\helpers\Url;
             </div>
         </div>
     </div>
+	<!-- Выпадающее меню — ОБЯЗАТЕЛЬНО ВНЕ .command-bar -->
+	<div id="issue-actions-menu"
+		 class="aui-style-default aui-dropdown2 aui-dropdown2-right"
+		 role="menu"
+		 aria-hidden="true"
+		 style="display: none; position: absolute; z-index: 10000; background: white; border: 1px solid #ccc; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+		<div class="aui-dropdown2-content">
+			<?= $this->render('_actions_menu', ['model' => $model]) ?>
+		</div>
+	</div>
 </div>
+
+<?php
+$js = <<<JS
+(function () {
+    // Гарантируем, что меню закрыто при загрузке
+    const dropdown = document.querySelector('.js-issue-actions-dropdown');
+    const trigger = document.querySelector('.js-issue-actions-trigger');
+    if (dropdown && trigger) {
+        dropdown.style.display = 'none';
+        trigger.setAttribute('aria-expanded', 'false');
+    }
+
+    // Открытие/закрытие по клику на триггер
+    document.addEventListener('click', function (e) {
+        if (!trigger || !dropdown) return;
+
+        const isClickOnTrigger = trigger.contains(e.target) || e.target === trigger;
+        const isClickInsideDropdown = dropdown.contains(e.target);
+
+        if (isClickOnTrigger) {
+            e.preventDefault();
+            const isVisible = dropdown.style.display === 'block';
+            dropdown.style.display = isVisible ? 'none' : 'block';
+            trigger.setAttribute('aria-expanded', !isVisible);
+        } else if (!isClickInsideDropdown) {
+            // Клик вне — закрыть
+            dropdown.style.display = 'none';
+            trigger.setAttribute('aria-expanded', 'false');
+        }
+    });
+})();
+JS;
+
+$this->registerJs($js);
+?>

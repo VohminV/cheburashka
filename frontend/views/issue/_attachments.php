@@ -29,30 +29,30 @@ use yii\helpers\Url;
 
         <ul class="ops">
             <li class="drop">
-                <div class="aui-dd-parent">
-                    <div class="aui-button aui-button-compact aui-button-subtle js-default-dropdown"
-                         role="button" aria-haspopup="true" aria-expanded="false">
-                        <span class="aui-icon aui-icon-small aui-iconfont-more">…</span>
-                    </div>
-                    <div class="aui-dropdown-content aui-list" style="display: none; position: absolute; z-index: 1000;">
-                        <ul class="aui-list-section aui-first">
-                            <li class="aui-list-item"><?= Html::a('<span>Сортировать по названию</span>', Url::to(['view', 'id' => $model->id, 'attachmentSortBy' => 'fileName']) . '#attachmentmodule', ['class' => 'aui-list-item-link']) ?></li>
-                            <li class="aui-list-item"><?= Html::a('<span>Сортировать по дате</span>', Url::to(['view', 'id' => $model->id, 'attachmentSortBy' => 'dateTime']) . '#attachmentmodule', ['class' => 'aui-list-item-link']) ?></li>
-                        </ul>
-                        <ul class="aui-list-section">
-                            <li class="aui-list-item"><?= Html::a('<span>По возрастанию</span>', Url::to(['view', 'id' => $model->id, 'attachmentOrder' => 'asc']) . '#attachmentmodule', ['class' => 'aui-list-item-link']) ?></li>
-                            <li class="aui-list-item"><?= Html::a('<span>По убыванию</span>', Url::to(['view', 'id' => $model->id, 'attachmentOrder' => 'desc']) . '#attachmentmodule', ['class' => 'aui-list-item-link']) ?></li>
-                        </ul>
-                        <ul class="aui-list-section">
-                            <li class="aui-list-item"><?= Html::a('<span>Эскизы</span>', Url::to(['view', 'id' => $model->id, 'attachmentViewMode' => 'gallery']) . '#attachmentmodule', ['class' => 'aui-list-item-link']) ?></li>
-                            <li class="aui-list-item"><?= Html::a('<span>Список</span>', Url::to(['view', 'id' => $model->id, 'attachmentViewMode' => 'list']) . '#attachmentmodule', ['class' => 'aui-list-item-link']) ?></li>
-                        </ul>
-                        <ul class="aui-list-section aui-last">
-                            <li class="aui-list-item"><?= Html::a('<span>Скачать все</span>', Url::to(['download-all', 'id' => $model->id]), ['class' => 'aui-list-item-link']) ?></li>
-                            <li class="aui-list-item"><?= Html::a('<span>Управление вложениями</span>', Url::to(['manage-attachments', 'id' => $model->id]), ['class' => 'aui-list-item-link']) ?></li>
-                        </ul>
-                    </div>
-                </div>
+				<div class="aui-dd-parent">
+					<button type="button" class="aui-button aui-button-compact aui-button-subtle js-default-dropdown"
+							aria-haspopup="true" aria-expanded="false">
+						<span class="aui-icon aui-icon-small aui-iconfont-more">…</span>
+					</button>
+					<div class="aui-dropdown-content">
+						<ul class="aui-list-section aui-first">
+							<li><?= Html::a('<span>Сортировать по названию</span>', Url::to(['view', 'id' => $model->id, 'attachmentSortBy' => 'fileName']) . '#attachmentmodule', ['class' => 'aui-list-item-link']) ?></li>
+							<li><?= Html::a('<span>Сортировать по дате</span>', Url::to(['view', 'id' => $model->id, 'attachmentSortBy' => 'dateTime']) . '#attachmentmodule', ['class' => 'aui-list-item-link']) ?></li>
+						</ul>
+						<ul class="aui-list-section">
+							<li><?= Html::a('<span>По возрастанию</span>', Url::to(['view', 'id' => $model->id, 'attachmentOrder' => 'asc']) . '#attachmentmodule', ['class' => 'aui-list-item-link']) ?></li>
+							<li><?= Html::a('<span>По убыванию</span>', Url::to(['view', 'id' => $model->id, 'attachmentOrder' => 'desc']) . '#attachmentmodule', ['class' => 'aui-list-item-link']) ?></li>
+						</ul>
+						<ul class="aui-list-section">
+							<li><?= Html::a('<span>Эскизы</span>', Url::to(['view', 'id' => $model->id, 'attachmentViewMode' => 'gallery']) . '#attachmentmodule', ['class' => 'aui-list-item-link']) ?></li>
+							<li><?= Html::a('<span>Список</span>', Url::to(['view', 'id' => $model->id, 'attachmentViewMode' => 'list']) . '#attachmentmodule', ['class' => 'aui-list-item-link']) ?></li>
+						</ul>
+						<ul class="aui-list-section aui-last">
+							<li><?= Html::a('<span>Скачать все</span>', Url::to(['download-all', 'id' => $model->id]), ['class' => 'aui-list-item-link']) ?></li>
+							<li><?= Html::a('<span>Управление вложениями</span>', Url::to(['manage-attachments', 'id' => $model->id]), ['class' => 'aui-list-item-link']) ?></li>
+						</ul>
+					</div>
+				</div>
             </li>
         </ul>
     </div>

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict CW1rWQeH0LjqPlwSlgUwXSuAvLrfhD6ispkRojH9HclYFyJqwenzUbVVBE8XsVk
+\restrict Pp4etBZPUnOTcFJY6vIUymlgd2WewPJTFLnhkuV85RQ7Wjamy9qGCB02fqFXWRm
 
 -- Dumped from database version 17.7
 -- Dumped by pg_dump version 17.7
@@ -491,6 +491,44 @@ CREATE TABLE public.issue_watcher (
 ALTER TABLE public.issue_watcher OWNER TO postgres;
 
 --
+-- Name: issue_worklog; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.issue_worklog (
+    id integer NOT NULL,
+    issue_id integer NOT NULL,
+    user_id integer NOT NULL,
+    time_spent integer NOT NULL,
+    comment text,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.issue_worklog OWNER TO postgres;
+
+--
+-- Name: issue_worklog_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.issue_worklog_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.issue_worklog_id_seq OWNER TO postgres;
+
+--
+-- Name: issue_worklog_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.issue_worklog_id_seq OWNED BY public.issue_worklog.id;
+
+
+--
 -- Name: migration; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -682,6 +720,13 @@ ALTER TABLE ONLY public.issue_type ALTER COLUMN id SET DEFAULT nextval('public.i
 
 
 --
+-- Name: issue_worklog id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.issue_worklog ALTER COLUMN id SET DEFAULT nextval('public.issue_worklog_id_seq'::regclass);
+
+
+--
 -- Name: project id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -842,6 +887,14 @@ COPY public.issue_watcher (issue_id, user_id) FROM stdin;
 
 
 --
+-- Data for Name: issue_worklog; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.issue_worklog (id, issue_id, user_id, time_spent, comment, created_at) FROM stdin;
+\.
+
+
+--
 -- Data for Name: migration; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -941,6 +994,13 @@ SELECT pg_catalog.setval('public.issue_status_id_seq', 3, true);
 --
 
 SELECT pg_catalog.setval('public.issue_type_id_seq', 4, true);
+
+
+--
+-- Name: issue_worklog_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.issue_worklog_id_seq', 1, false);
 
 
 --
@@ -1101,6 +1161,14 @@ ALTER TABLE ONLY public.issue_watcher
 
 
 --
+-- Name: issue_worklog issue_worklog_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.issue_worklog
+    ADD CONSTRAINT issue_worklog_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: migration migration_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1190,6 +1258,20 @@ CREATE INDEX idx_issue_assignee_id ON public.issue USING btree (assignee_id);
 --
 
 CREATE INDEX idx_issue_project_id ON public.issue USING btree (project_id);
+
+
+--
+-- Name: idx_issue_worklog_issue_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_issue_worklog_issue_id ON public.issue_worklog USING btree (issue_id);
+
+
+--
+-- Name: idx_issue_worklog_user_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_issue_worklog_user_id ON public.issue_worklog USING btree (user_id);
 
 
 --
@@ -1383,6 +1465,22 @@ ALTER TABLE ONLY public.issue_watcher
 
 
 --
+-- Name: issue_worklog issue_worklog_issue_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.issue_worklog
+    ADD CONSTRAINT issue_worklog_issue_id_fkey FOREIGN KEY (issue_id) REFERENCES public.issue(id) ON DELETE CASCADE;
+
+
+--
+-- Name: issue_worklog issue_worklog_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.issue_worklog
+    ADD CONSTRAINT issue_worklog_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
+
+
+--
 -- Name: project project_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1394,5 +1492,5 @@ ALTER TABLE ONLY public.project
 -- PostgreSQL database dump complete
 --
 
-\unrestrict CW1rWQeH0LjqPlwSlgUwXSuAvLrfhD6ispkRojH9HclYFyJqwenzUbVVBE8XsVk
+\unrestrict Pp4etBZPUnOTcFJY6vIUymlgd2WewPJTFLnhkuV85RQ7Wjamy9qGCB02fqFXWRm
 
