@@ -92,12 +92,18 @@ use yii\helpers\Url;
 								<!-- Section 1: Работа -->
 								<div class="aui-dropdown2-section">
 									<div class="aui-dropdown2-item-group" role="group">
-										<?= Html::a('<span class="trigger-label">Вести журнал работы</span>', '#', [
-											'class' => 'aui-dropdown2-item',
-											'role' => 'menuitem',
-											'tabindex' => '-1',
-											'style' => 'display: block; padding: 6px 12px; color: #172b4d; text-decoration: none;',
-										]) ?>
+										<?= Html::a(
+											'<span class="trigger-label">Вести журнал работы</span>',
+											'#',
+											[
+												'class' => 'aui-dropdown2-item issueaction-log-work',
+												'role' => 'menuitem',
+												'tabindex' => '-1',
+												'data-url' => Url::to(['worklog/create', 'issue_id' => $model->id]),
+												'data-title' => 'Вести журнал работы',
+												'style' => 'display: block; padding: 6px 12px; color: #172b4d; text-decoration: none;',
+											]
+										) ?>
 									</div>
 								</div>
 
@@ -419,48 +425,176 @@ use yii\helpers\Url;
         </div>
     </div>
 	<!-- Выпадающее меню — ОБЯЗАТЕЛЬНО ВНЕ .command-bar -->
-	<div id="issue-actions-menu"
-		 class="aui-style-default aui-dropdown2 aui-dropdown2-right"
-		 role="menu"
-		 aria-hidden="true"
-		 style="display: none; position: absolute; z-index: 10000; background: white; border: 1px solid #ccc; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
-		<div class="aui-dropdown2-content">
-			<?= $this->render('_actions_menu', ['model' => $model]) ?>
-		</div>
-	</div>
 </div>
+
+<!-- Модальное окно: Вести журнал работы -->
+<div id="worklog-modal" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1050;
+    display: none;
+    align-items: center;
+    justify-content: center;
+">
+    <!-- ДОБАВЬТЕ ЭТОТ КОНТЕЙНЕР -->
+    <div class="modal-dialog" style="max-width: 800px; width: 90%;">
+        <div style="
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-height: 90vh;
+            overflow: auto;
+        ">
+            <div style="
+                padding: 16px;
+                border-bottom: 1px solid #dfe1e6;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            ">
+                <h5 id="worklog-modal-title">Загрузка...</h5>
+                <button id="worklog-modal-close" type="button" style="
+                    background: none;
+                    border: none;
+                    font-size: 24px;
+                    cursor: pointer;
+                    color: #5e6c84;
+                ">×</button>
+            </div>
+            <div id="worklog-modal-body" style="padding: 20px;">
+                <div class="text-center">Загрузка формы...</div>
+            </div>
+        </div>
+    </div> <!-- /.modal-dialog -->
+</div>
+
+<!-- Затемнение фона -->
+<div id="worklog-backdrop" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.6);
+    z-index: 1040;
+    display: none;
+"></div>
 
 <?php
 $js = <<<JS
 (function () {
-    // Гарантируем, что меню закрыто при загрузке
     const dropdown = document.querySelector('.js-issue-actions-dropdown');
     const trigger = document.querySelector('.js-issue-actions-trigger');
-    if (dropdown && trigger) {
-        dropdown.style.display = 'none';
-        trigger.setAttribute('aria-expanded', 'false');
+    const modal = document.getElementById('worklog-modal');
+    const backdrop = document.getElementById('worklog-backdrop');
+    const closeBtn = document.getElementById('worklog-modal-close');
+
+    if (!modal || !backdrop || !closeBtn) return;
+
+    function closeModal() {
+        modal.style.display = 'none';
+        backdrop.style.display = 'none';
+        if (dropdown) {
+            dropdown.style.display = 'none';
+            trigger.setAttribute('aria-expanded', 'false');
+        }
     }
 
-    // Открытие/закрытие по клику на триггер
-    document.addEventListener('click', function (e) {
-        if (!trigger || !dropdown) return;
+    function openModal(title, url) {
+        document.getElementById('worklog-modal-title').textContent = title;
+        document.getElementById('worklog-modal-body').innerHTML = '<div class="text-center">Загрузка...</div>';
+        modal.style.display = 'flex';
+        backdrop.style.display = 'block';
 
+        fetch(url, {
+            method: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => response.ok ? response.text() : Promise.reject('Ошибка загрузки'))
+        .then(html => {
+            document.getElementById('worklog-modal-body').innerHTML = html;
+
+            // Инициализация переключателей "Оставшееся время"
+            const radios = document.querySelectorAll('input[name="adjustEstimate"]');
+            radios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    document.getElementById('log-work-adjust-estimate-new-value').disabled = this.value !== 'new';
+                    document.getElementById('log-work-adjust-estimate-manual-value').disabled = this.value !== 'manual';
+                });
+            });
+
+            // AJAX-отправка формы (делегированный обработчик)
+            const form = document.getElementById('log-work-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(form);
+                    const actionUrl = form.getAttribute('action') || window.location.href;
+
+                    fetch(actionUrl, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            closeModal();
+                            // Опционально: обновить страницу или блок журнала работ
+                            // location.reload();
+                        } else {
+                            alert('Ошибка сохранения: ' + (data.message || ''));
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Worklog POST error:', err);
+                        alert('Не удалось отправить данные');
+                    });
+                });
+            }
+        })
+        .catch(err => {
+            document.getElementById('worklog-modal-body').innerHTML = '<div style="color: #d04437; padding: 10px;">Не удалось загрузить форму</div>';
+            console.error('Worklog error:', err);
+        });
+    }
+
+    // Закрытие по крестику или клику на фон
+    closeBtn.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', closeModal);
+
+    // Обработчик пункта меню
+    document.addEventListener('click', function (e) {
+        const link = e.target.closest('.issueaction-log-work');
+        if (link) {
+            e.preventDefault();
+            const url = link.getAttribute('data-url');
+            const title = link.getAttribute('data-title') || 'Вести журнал работы';
+            if (url) openModal(title, url);
+            return;
+        }
+
+        // Закрытие dropdown при клике вне
+        if (!trigger || !dropdown) return;
         const isClickOnTrigger = trigger.contains(e.target) || e.target === trigger;
         const isClickInsideDropdown = dropdown.contains(e.target);
-
         if (isClickOnTrigger) {
             e.preventDefault();
             const isVisible = dropdown.style.display === 'block';
             dropdown.style.display = isVisible ? 'none' : 'block';
-            trigger.setAttribute('aria-expanded', !isVisible);
+            trigger.setAttribute('aria-expanded', String(!isVisible));
         } else if (!isClickInsideDropdown) {
-            // Клик вне — закрыть
             dropdown.style.display = 'none';
             trigger.setAttribute('aria-expanded', 'false');
         }
     });
 })();
 JS;
-
-$this->registerJs($js);
+$this->registerJs($js, \yii\web\View::POS_END);
 ?>

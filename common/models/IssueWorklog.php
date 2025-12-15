@@ -3,7 +3,7 @@
 namespace common\models;
 
 use yii\db\ActiveRecord;
-
+use yii\base\InvalidParamException;
 /**
  * @property int $id
  * @property int $issue_id
@@ -14,6 +14,8 @@ use yii\db\ActiveRecord;
  */
 class IssueWorklog extends ActiveRecord
 {
+	private $_timeLogged;
+	
     public static function tableName()
     {
         return 'issue_worklog';
@@ -26,6 +28,7 @@ class IssueWorklog extends ActiveRecord
             [['issue_id', 'user_id', 'time_spent'], 'integer'],
             [['comment'], 'string'],
             [['created_at'], 'safe'],
+			[['timeLogged'], 'safe'],
         ];
     }
 
@@ -52,4 +55,43 @@ class IssueWorklog extends ActiveRecord
         }
         return $mins . 'м';
     }
+	
+	public function setTimeLogged($value)
+	{
+		$this->_timeLogged = $value;
+		$this->time_spent = $this->parseTimeToSeconds($value);
+	}
+
+	public function getTimeLogged()
+	{
+		// Можно реализовать обратное преобразование, если нужно
+		return $this->_timeLogged;
+	}
+
+	public function parseTimeToSeconds($input)
+	{
+		if (empty($input)) {
+			return 0;
+		}
+
+		$seconds = 0;
+		// Поддержка: 3w 4d 12h 30m 45s
+		$patterns = [
+			'w' => 7 * 24 * 3600,
+			'd' => 24 * 3600,
+			'h' => 3600,
+			'm' => 60,
+			's' => 1,
+		];
+
+		foreach ($patterns as $unit => $multiplier) {
+			if (preg_match_all('/(\d+)\s*' . preg_quote($unit, '/') . '/i', $input, $matches)) {
+				foreach ($matches[1] as $value) {
+					$seconds += (int)$value * $multiplier;
+				}
+			}
+		}
+
+		return $seconds;
+	}
 }

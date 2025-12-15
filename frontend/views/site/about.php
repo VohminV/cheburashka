@@ -28,11 +28,6 @@ $this->title = 'О Чебурашке';
                     <br>• Собственный Jira-совместимый интерфейс
                 </p>
 
-                <p>
-                    Проект распространяется под лицензией <strong>MIT</strong> и доступен на GitHub:
-                    <br><a href="https://github.com/VohminV/cheburashka" target="_blank" style="color: var(--jira-primary);">github.com/VohminV/cheburashka</a>
-                </p>
-
                 <p style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--jira-border); font-size: 13px; color: var(--jira-text-secondary);">
                     Разработано в Новосибирске, 2025
                 </p>

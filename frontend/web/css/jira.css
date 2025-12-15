@@ -959,3 +959,58 @@ dl.dates dd {
     margin-top: 4px;
     padding-top: 4px;
 }
+#worklog-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1050;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+}
+
+#worklog-modal.show {
+    display: flex;
+}
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+}
+
+/* Контейнер модального окна — центр, ограничение ширины */
+.modal-dialog {
+    width: 90%;
+    max-width: 800px;
+    margin: 0;
+}
+
+/* Внутренний контент модалки */
+.modal-content {
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    max-height: 90vh;
+    overflow: auto;
+}
+
+.worklog-textarea {
+    resize: none;
+    height: 80px; /* фиксированная высота */
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #dfe1e6;
+    border-radius: 3px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+    overflow-y: auto;
+}

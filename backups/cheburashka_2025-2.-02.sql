@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict Pp4etBZPUnOTcFJY6vIUymlgd2WewPJTFLnhkuV85RQ7Wjamy9qGCB02fqFXWRm
+\restrict qTor1aAp0qHdjoB00N66UgdnRq4iG0CGsTTLEIuuAcRJxUm6QoweDmIbRJZA9b9
 
 -- Dumped from database version 17.7
 -- Dumped by pg_dump version 17.7
@@ -657,6 +657,50 @@ ALTER SEQUENCE public.user_id_seq OWNED BY public."user".id;
 
 
 --
+-- Name: worklog; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.worklog (
+    id integer NOT NULL,
+    issue_id integer NOT NULL,
+    author_id integer NOT NULL,
+    time_logged character varying(64) NOT NULL,
+    started_at timestamp without time zone NOT NULL,
+    comment text,
+    adjust_estimate character varying(20) DEFAULT 'auto'::character varying NOT NULL,
+    new_estimate character varying(64),
+    adjustment_amount character varying(64),
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now(),
+    CONSTRAINT worklog_adjust_estimate_check CHECK (((adjust_estimate)::text = ANY ((ARRAY['auto'::character varying, 'leave'::character varying, 'new'::character varying, 'manual'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.worklog OWNER TO postgres;
+
+--
+-- Name: worklog_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.worklog_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.worklog_id_seq OWNER TO postgres;
+
+--
+-- Name: worklog_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.worklog_id_seq OWNED BY public.worklog.id;
+
+
+--
 -- Name: board id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -745,6 +789,13 @@ ALTER TABLE ONLY public.tenant ALTER COLUMN id SET DEFAULT nextval('public.tenan
 --
 
 ALTER TABLE ONLY public."user" ALTER COLUMN id SET DEFAULT nextval('public.user_id_seq'::regclass);
+
+
+--
+-- Name: worklog id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.worklog ALTER COLUMN id SET DEFAULT nextval('public.worklog_id_seq'::regclass);
 
 
 --
@@ -891,6 +942,7 @@ COPY public.issue_watcher (issue_id, user_id) FROM stdin;
 --
 
 COPY public.issue_worklog (id, issue_id, user_id, time_spent, comment, created_at) FROM stdin;
+1	4	2	0	\N	2025-12-15 08:42:57
 \.
 
 
@@ -930,6 +982,14 @@ COPY public.tenant (id, name, created_at) FROM stdin;
 
 COPY public."user" (id, username, auth_key, password_hash, password_reset_token, email, status, created_at, updated_at, verification_token) FROM stdin;
 2	cheburashka	EfACZn9P2QDtdWpq0bf_TZEwnw9unjNT	$2y$13$J9idLDkQd1PrPi6LyorffeR3aja4oj0diLTsYuANM1DtqjOB4nhwC	\N	cheburashka@example.com	10	1765159699	1765159699	\N
+\.
+
+
+--
+-- Data for Name: worklog; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.worklog (id, issue_id, author_id, time_logged, started_at, comment, adjust_estimate, new_estimate, adjustment_amount, created_at, updated_at) FROM stdin;
 \.
 
 
@@ -1000,7 +1060,7 @@ SELECT pg_catalog.setval('public.issue_type_id_seq', 4, true);
 -- Name: issue_worklog_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.issue_worklog_id_seq', 1, false);
+SELECT pg_catalog.setval('public.issue_worklog_id_seq', 1, true);
 
 
 --
@@ -1022,6 +1082,13 @@ SELECT pg_catalog.setval('public.tenant_id_seq', 1, true);
 --
 
 SELECT pg_catalog.setval('public.user_id_seq', 2, true);
+
+
+--
+-- Name: worklog_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.worklog_id_seq', 1, false);
 
 
 --
@@ -1233,6 +1300,14 @@ ALTER TABLE ONLY public."user"
 
 
 --
+-- Name: worklog worklog_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.worklog
+    ADD CONSTRAINT worklog_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: idx_board_project_id; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1279,6 +1354,27 @@ CREATE INDEX idx_issue_worklog_user_id ON public.issue_worklog USING btree (user
 --
 
 CREATE INDEX idx_project_tenant_id ON public.project USING btree (tenant_id);
+
+
+--
+-- Name: idx_worklog_author_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_worklog_author_id ON public.worklog USING btree (author_id);
+
+
+--
+-- Name: idx_worklog_issue_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_worklog_issue_id ON public.worklog USING btree (issue_id);
+
+
+--
+-- Name: idx_worklog_started_at; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_worklog_started_at ON public.worklog USING btree (started_at);
 
 
 --
@@ -1489,8 +1585,24 @@ ALTER TABLE ONLY public.project
 
 
 --
+-- Name: worklog worklog_author_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.worklog
+    ADD CONSTRAINT worklog_author_id_fkey FOREIGN KEY (author_id) REFERENCES public."user"(id) ON DELETE CASCADE;
+
+
+--
+-- Name: worklog worklog_issue_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.worklog
+    ADD CONSTRAINT worklog_issue_id_fkey FOREIGN KEY (issue_id) REFERENCES public.issue(id) ON DELETE CASCADE;
+
+
+--
 -- PostgreSQL database dump complete
 --
 
-\unrestrict Pp4etBZPUnOTcFJY6vIUymlgd2WewPJTFLnhkuV85RQ7Wjamy9qGCB02fqFXWRm
+\unrestrict qTor1aAp0qHdjoB00N66UgdnRq4iG0CGsTTLEIuuAcRJxUm6QoweDmIbRJZA9b9
 

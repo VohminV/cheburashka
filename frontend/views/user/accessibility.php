@@ -38,17 +38,6 @@ $this->title = 'Специальные возможности';
                     <br>• <kbd>?</kbd> — справка по горячим клавишам
                 </p>
 
-                <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 12px; color: var(--jira-text);">
-                    Обратная связь
-                </h3>
-                <p>
-                    Если вы столкнулись с барьером доступности, напишите на почту поддержки или создайте issue в репозитории:
-                    <br>
-                    <a href="https://github.com/VohminV/cheburashka/issues" target="_blank" style="color: var(--jira-primary);">
-                        github.com/VohminV/cheburashka/issues
-                    </a>
-                </p>
-
                 <p style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--jira-border); font-size: 13px; color: var(--jira-text-secondary);">
                     Система соответствует рекомендациям WCAG 2.1 (уровень A).
                 </p>
